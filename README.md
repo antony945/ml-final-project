@@ -23,3 +23,5 @@ Projects can be submitted at any time through [this](https://docs.google.com/for
 Optionally, to facilitate the presentation, a Colab notebook can be linked. The content of the notebook must be the same as that of the sources, which must be submitted anyway.
 
 Discussions will take place as per the calendar below. Every project will be discussed separately with all team members. Every member is required to have full kowledge and understanding of every aspect of the project.
+
+https://www.youtube.com/watch?v=ZhoIgo3qqLU&list=PL58zEckBH8fCt_lYkmayZoR9XfDCW9hte
