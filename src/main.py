@@ -101,11 +101,11 @@ def main():
     #     "turbulence_power": 1.5
     # }
 
-    # env_args = {
-    #     "id": 'Blackjack-v1',
-    #     "natural": False,
-    #     "sab": False
-    # }
+    env_args = {
+        "id": 'Blackjack-v1',
+        "natural": False,
+        "sab": False
+    }
 
     # Initialise the environment
     n_episodes = 100_000
