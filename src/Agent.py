@@ -24,7 +24,12 @@ class Agent:
         _, self.info = env.reset()
         self.training_error = []
 
-        self.filename = f"q_table_{self.env.spec.name}.pk1"
+        # Create filename for the q-table based on the env
+        self.filename = f"{self.env.spec.name}"
+        for k,v in self.env.spec.kwargs.items():
+            if k != "render_mode":
+                self.filename += f"_{v}"
+        self.filename += ".pk1"
 
         # Create q_table or load it from a file if specified
         if load_from_file:

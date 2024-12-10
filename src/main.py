@@ -6,11 +6,9 @@ import logging
 from matplotlib import pyplot as plt
 import pickle
 
-def run(env_name: gym.Env, n_episodes: int, is_training = False, show_plots = False):
+def run(env_args: dict, n_episodes: int, is_training = False, show_plots = False, show_render = False):
     # Initialise the environment
-    # env = gym.make(env_name, map_name="8x8", is_slippery=True, render_mode=None if is_training else "human")
-    env = gym.make(env_name, render_mode=None if is_training else "human")
-
+    env = gym.make(**env_args, render_mode=None if not show_render else "human")
     env = gym.wrappers.RecordEpisodeStatistics(env, buffer_length=n_episodes)
 
     # hyperparameters
@@ -72,10 +70,11 @@ def run(env_name: gym.Env, n_episodes: int, is_training = False, show_plots = Fa
         axs[1].set_xlabel("Episode")
         axs[1].set_ylabel("Length")
 
-        axs[2].plot(np.convolve(agent.training_error, np.ones(100)))
-        axs[2].set_title("Training Error")
-        axs[2].set_xlabel("Episode")
-        axs[2].set_ylabel("Temporal Difference")
+        if len(agent.training_error) > 0:
+            axs[2].plot(np.convolve(agent.training_error, np.ones(100)))
+            axs[2].set_title("Training Error")
+            axs[2].set_xlabel("Episode")
+            axs[2].set_ylabel("Temporal Difference")
 
         plt.tight_layout()
         plt.show()
@@ -83,17 +82,39 @@ def run(env_name: gym.Env, n_episodes: int, is_training = False, show_plots = Fa
     return agent
 
 def main():
-    env_name = "Taxi-v3"
-    # env_name = "FrozenLake-v1"
+    env_args = {
+        "id": "FrozenLake-v1",
+        "map_name": "8x8",
+        "is_slippery": True
+    }
+
+    # env_args = {
+    #     "id": "Taxi-v3",
+    # }
+
+    # env_args = {
+    #     "id": "LunarLander-v3",
+    #     "continuous": False,
+    #     "gravity": -10.0,
+    #     "enable_wind": False,
+    #     "wind_power": 15.0,
+    #     "turbulence_power": 1.5
+    # }
+
+    # env_args = {
+    #     "id": 'Blackjack-v1',
+    #     "natural": False,
+    #     "sab": False
+    # }
 
     # Initialise the environment
     n_episodes = 100_000
 
     # TRAINING
-    run(env_name, n_episodes, is_training=True, show_plots=True)
+    run(env_args, n_episodes, is_training=True, show_plots=True, show_render=False)
 
     # RUN
-    run(env_name, 5, is_training=False, show_plots=False)
+    run(env_args, 1000, is_training=False, show_plots=True, show_render=False)
 
 if __name__ == '__main__':
     main()
