@@ -2,41 +2,6 @@ import gymnasium as gym
 from Agent import Agent
 from tqdm import tqdm
 import numpy as np
-import logging
-from matplotlib import pyplot as plt
-import pickle
-
-def plot_results(env, agent, mean_rewards, integrated = False):
-    if (integrated):
-        # print(f'Episode time taken: {env.time_queue}')
-        # print(f'Episode total rewards: {env.return_queue}')
-        # print(f'Episode lengths: {env.length_queue}')
-
-        # visualize the episode rewards, episode length and training error in one figure
-        fig, axs = plt.subplots(1, 3, figsize=(20, 8))
-
-        # np.convolve will compute the rolling mean for 100 episodes
-        axs[0].plot(np.convolve(env.return_queue, np.ones(100)))
-        axs[0].set_title("Episode Rewards")
-        axs[0].set_xlabel("Episode")
-        axs[0].set_ylabel("Reward")
-
-        axs[1].plot(np.convolve(env.length_queue, np.ones(100)))
-        axs[1].set_title("Episode Lengths")
-        axs[1].set_xlabel("Episode")
-        axs[1].set_ylabel("Length")
-
-        if len(agent.training_error) > 0:
-            axs[2].plot(np.convolve(agent.training_error, np.ones(100)))
-            axs[2].set_title("Training Error")
-            axs[2].set_xlabel("Episode")
-            axs[2].set_ylabel("Temporal Difference")
-    else:
-        plt.plot(mean_rewards)
-        
-    plt.savefig(f"results/{agent.envname}_results_{len(mean_rewards)}.png")
-    plt.tight_layout()
-    plt.show()
 
 def test(env_args: dict, show_render = True):
     # Initialise the environment
@@ -62,16 +27,17 @@ def test(env_args: dict, show_render = True):
 
         i = i+1
 
+    env.close()
     return
 
-def run(env_args: dict, n_episodes: int, learning_rate: float, is_training = False, show_plots = False, show_render = False, debug = False, record_video = False):
+def run(env_args: dict, n_episodes: int, learning_rate: float, is_training = False, show_plots = False, show_render = False, verbose = False, record_video = False, max_episode_steps = None):
     # Initialise the environment
     env = gym.make(**env_args, render_mode="rgb_array" if not show_render else "human") # or "none"
 
     training_period = 5000
     if is_training and record_video:
         env = gym.wrappers.RecordVideo(env, video_folder="videos", name_prefix="training", episode_trigger=lambda x: x % training_period == 0)
-    env = gym.wrappers.RecordEpisodeStatistics(env, buffer_length=n_episodes)
+    env = gym.wrappers.RecordEpisodeStatistics(env, buffer_length=n_episodes)    
 
     # hyperparameters
     start_epsilon = 1.0
@@ -81,6 +47,7 @@ def run(env_args: dict, n_episodes: int, learning_rate: float, is_training = Fal
 
     agent = Agent(
         env=env,
+        n_episodes=n_episodes,
         learning_rate=learning_rate,
         initial_epsilon=start_epsilon,
         epsilon_decay=epsilon_decay,
@@ -94,7 +61,7 @@ def run(env_args: dict, n_episodes: int, learning_rate: float, is_training = Fal
     best_reward = -99999
 
     iterable = range(n_episodes)
-    if not debug:
+    if not verbose:
         iterable = tqdm(iterable)
 
     try:
@@ -106,6 +73,7 @@ def run(env_args: dict, n_episodes: int, learning_rate: float, is_training = Fal
             rewards = 0
 
             # play one episode
+            i = 0
             while not done:
                 action = agent.get_action(obs, is_training=is_training)
                 # print(f"{episode} - Agent choose action: {action}")
@@ -116,10 +84,14 @@ def run(env_args: dict, n_episodes: int, learning_rate: float, is_training = Fal
                 agent.update(obs, action, reward, terminated, next_obs, is_training=is_training)
 
                 # update if the environment is done and the current obs
-                done = terminated or truncated
-                # done = terminated or rewards < -1000
+                if max_episode_steps is not None:
+                    done = terminated or i > max_episode_steps
+                else:
+                    done = terminated or truncated
+                
                 obs = next_obs
                 rewards += reward
+                i=i+1
             
             if rewards > best_reward:
                 best_reward = rewards
@@ -128,7 +100,7 @@ def run(env_args: dict, n_episodes: int, learning_rate: float, is_training = Fal
             mean_reward = np.mean(rewards_per_episode[len(rewards_per_episode)-100:])
             mean_rewards.append(mean_reward)
 
-            if debug and is_training and episode%100==0:
+            if verbose and is_training and episode%100==0:
                 print(f"Episode: {episode}, Epsilon: {agent.epsilon:0.2f}, Reward: {rewards:.3f}, Best Reward: {best_reward:.3f}, Mean Reward {mean_reward:0.3f}")
 
             agent.decay_epsilon()
@@ -142,52 +114,52 @@ def run(env_args: dict, n_episodes: int, learning_rate: float, is_training = Fal
 
     # Display plots
     if show_plots:
-        plot_results(env, agent, mean_rewards, integrated=False)
+        agent.plot_results(mean_rewards, training=is_training, integrated=False)
 
     env.close()
     return agent
 
 def main():
+    max_episode_steps = None
+
+    # 100_000 and 0.001
     # env_args = {
     #     "id": "FrozenLake-v1",
     #     "map_name": "8x8",
     #     "is_slippery": True
     # }
 
+    # 100_000 and 0.001
     # env_args = {
     #     "id": "Taxi-v3",
     # }
 
+    # env_args = {
+    #     "id": "LunarLander-v3",
+    #     "continuous": False,
+    # }
+
+    # 5_000 and 0.9 and 1000 steps
     env_args = {
-        "id": "LunarLander-v3",
-        "continuous": False,
+        "id": "MountainCar-v0",
     }
-
-    # env_args = {
-    #     "id": 'Blackjack-v1',
-    #     "natural": False,
-    #     "sab": False
-    # }
-
-    # env_args = {
-    #     "id": "MountainCar-v0",
-    # }
+    max_episode_steps = 1000
 
     # TEST
-    # test(env_args, n_episodes)
+    # test(env_args, 1)
 
     # Initialise the environment
-    n_episodes = 50_000
-    learning_rate = 0.001
+    n_episodes = 8_000
+    learning_rate = 0.95
 
     # TRAINING
-    run(env_args, n_episodes, learning_rate, is_training=True, show_plots=True, show_render=False, debug=True, record_video=False)
+    run(env_args, n_episodes, learning_rate, is_training=True, show_plots=True, show_render=False, verbose=True, record_video=False, max_episode_steps=max_episode_steps)
 
     # RUN
-    run(env_args, 1000, learning_rate, is_training=False, show_plots=True, show_render=False, debug=False, record_video=False)
+    run(env_args, 1000, learning_rate, is_training=False, show_plots=True, show_render=False, verbose=False, record_video=False)
 
     # RENDER
-    run(env_args, 5, learning_rate, is_training=False, show_plots=True, show_render=True, debug=False, record_video=False)
+    run(env_args, 5, learning_rate, is_training=False, show_plots=True, show_render=True, verbose=False, record_video=False)
 
 if __name__ == '__main__':
     main()
