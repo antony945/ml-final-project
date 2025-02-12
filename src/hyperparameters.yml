@@ -1,0 +1,79 @@
+cartpole:
+  env_id: CartPole-v1
+  replay_memory_size: 100_000
+  mini_batch_size: 32
+  epsilon_init: 1
+  epsilon_decay: 0.9995
+  epsilon_min: 0.05
+
+frozenlake:
+  env_args:
+    id: FrozenLake-v1
+    map_name: 8x8
+    is_slippery: True
+  replay_memory_size: 100_000
+  mini_batch_size: 32
+  epsilon_init: 1
+  epsilon_decay: 0.9995
+  epsilon_min: 0.05
+  n_episodes: 100_000
+  learning_rate: 0.001
+
+taxi:
+  env_args:
+    id: Taxi-v3
+  replay_memory_size: 100_000
+  mini_batch_size: 32
+  epsilon_init: 1
+  epsilon_decay: 0.9995
+  epsilon_min: 0.05
+  n_episodes: 100_000
+  learning_rate: 0.001
+
+lunarlander:
+  env_args:
+    id: LunarLander-v3
+    continuous: False
+  replay_memory_size: 100_000
+  mini_batch_size: 32
+  epsilon_init: 1
+  epsilon_decay: 0.9995
+  epsilon_min: 0.05
+  n_episodes: 5_000
+  learning_rate: 0.001
+
+mountaincar:
+  env_args:
+    id: MountainCar-v0
+  replay_memory_size: 100_000
+  mini_batch_size: 32
+  epsilon_init: 1
+  epsilon_decay: 0.9995
+  epsilon_min: 0.05
+  n_episodes: 5_000
+  learning_rate: 0.9
+  max_episode_steps: 1000
+
+tetris:
+  env_args:
+    id: tetris_gymnasium/Tetris
+  replay_memory_size: 100_000
+  mini_batch_size: 32
+  epsilon_init: 1
+  epsilon_decay: 0.9995
+  epsilon_min: 0.05
+  n_episodes: 100_000
+  learning_rate: 0.001
+
+flappybird:
+  env_args:
+    id: FlappyBird-v0
+    use_lidar: False
+  replay_memory_size: 100_000
+  mini_batch_size: 32
+  network_sync_rate: 10
+  epsilon_init: 1
+  epsilon_decay: 0.99995
+  epsilon_min: 0.05
+  n_episodes: 100_000
+  learning_rate: 0.0001
