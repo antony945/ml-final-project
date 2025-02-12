@@ -182,7 +182,7 @@ class Agent:
             lines.append(line1)
             ax1.set_xlabel("Episode")
             ax1.set_ylabel("Reward")
-            ax1.tick_params(axis="y", labelcolor="b")
+            ax1.tick_params(axis="y")
 
             if epsilon_values is not None:
                 # Create a second y-axis
@@ -190,7 +190,7 @@ class Agent:
                 line2, = ax2.plot(epsilon_values, label="Epsilon Decay", color="r", linestyle="dashed")
                 lines.append(line2)
                 ax2.set_ylabel("Epsilon")
-                ax2.tick_params(axis="y", labelcolor="r")
+                ax2.tick_params(axis="y")
 
         # Combine legends
         labels = [line.get_label() for line in lines]

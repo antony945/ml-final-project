@@ -85,9 +85,6 @@ def run(env_args: dict, n_episodes: int, learning_rate: float, is_training = Fal
             # play one episode
             i = 0
             while not done:
-                if show_render:
-                    env.render()
-
                 action = agent.get_action(obs, is_training=is_training)
                 # print(f"{episode} - Agent choose action: {action}")
 
@@ -105,9 +102,6 @@ def run(env_args: dict, n_episodes: int, learning_rate: float, is_training = Fal
                 obs = next_obs
                 rewards += reward
                 
-                if show_render:
-                    cv2.waitKey(100)
-
                 i=i+1
             
             if rewards > best_reward:
@@ -155,10 +149,10 @@ def main():
     # }
 
     # 5_000 and 0.001
-    env_args = {
-        "id": "LunarLander-v3",
-        "continuous": False,
-    }
+    # env_args = {
+    #     "id": "LunarLander-v3",
+    #     "continuous": False,
+    # }
 
     # 5_000 and 0.9 and 1000 steps
     # env_args = {
@@ -170,18 +164,18 @@ def main():
     #     "id": "tetris_gymnasium/Tetris"    
     # }
 
-    # 100_000 and 0.001
-    # env_args = {
-    #     "id": "FlappyBird-v0",
-    #     "use_lidar": False    
-    # }
+    # 200_000 and 0.001
+    env_args = {
+        "id": "FlappyBird-v0",
+        "use_lidar": False    
+    }
 
     # TEST
     # test(env_args, 3, show_render=True)
     # return
 
     # Initialise the environment
-    n_episodes = 5000
+    n_episodes = 200000
     learning_rate = 0.001
 
     # TRAINING
