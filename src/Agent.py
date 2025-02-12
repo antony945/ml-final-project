@@ -69,7 +69,7 @@ class Agent:
         # Linear decay
         self.epsilon = max(self.final_epsilon, self.epsilon*self.epsilon_decay)
 
-    def plot_results(self, mean_rewards, epsilon_values, training = False, integrated = False):
+    def plot_results(self, mean_rewards, epsilon_values, training = False, show = True, integrated = False):
         if (integrated):
             # print(f'Episode time taken: {env.time_queue}')
             # print(f'Episode total rewards: {env.return_queue}')
@@ -120,13 +120,14 @@ class Agent:
         plt.title(f"N={len(mean_rewards)}, LR={self.learning_rate}, E_DECAY={self.epsilon_decay}, DISCOUNT={self.discount_factor}")
         
         if training:
-            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_fullname}_{len(mean_rewards)}_training.png")
+            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_fullname}_training.png")
         else:
-            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_fullname}_{len(mean_rewards)}_test.png")
+            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_fullname}_test.png")
 
         plt.savefig(filename)
-        plt.tight_layout()
-        plt.show()
+        if show:
+            plt.tight_layout()
+            plt.show()
 
     @abc.abstractmethod
     def get_action(self, obs, is_training=True) -> int:
@@ -226,8 +227,10 @@ class Agent:
                     if verbose:
                         print(log_msg)
                     
-                    # Update also graph in that case
-                    # self.plot_results(mean_rewards, epsilon_values, training=is_training, integrated=False)
+                # Save graph every 1000 episodes
+                # TODO: Fix the fact that it shows multiple graph at the end 
+                # if is_training and episode%1000==0:
+                    # self.plot_results(mean_rewards, epsilon_values, training=is_training, show=False, integrated=False)
 
                 # Decay epsilon
                 self.decay_epsilon(is_training)
