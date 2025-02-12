@@ -2,30 +2,40 @@ import gymnasium as gym
 from Agent import Agent
 from tqdm import tqdm
 import numpy as np
+from tetris_gymnasium.envs import Tetris
+import flappy_bird_gymnasium
+import cv2
+import sys
 
-def test(env_args: dict, show_render = True):
+def test(env_args: dict, n_episodes, show_render = True):
     # Initialise the environment
     env = gym.make(**env_args, render_mode=None if not show_render else "human")
     
     print(f"Action space: {env.action_space}")
     print(f"Obs space: {env.observation_space}")
 
-    obs, info = env.reset()
-    done = False
+    for episode in range(n_episodes):
+        done = False
+        obs, info = env.reset(seed=42)
 
-    # play one episode
-    i = 0
-    while not done:
-        action = env.action_space.sample()
-        # print(f"{episode} - {i}) Agent choose action: {action}")
+        # play one episode
+        i = 0
+        while not done:
+            # Render the current state of the game
+            env.render()
 
-        next_obs, reward, terminated, truncated, info = env.step(action)
+            action = env.action_space.sample()
+            # print(f"{episode} - {i}) Agent choose action: {action}")
 
-        # update if the environment is done and the current obs
-        done = terminated or truncated
-        obs = next_obs
+            next_obs, reward, terminated, truncated, info = env.step(action)
 
-        i = i+1
+            # update if the environment is done and the current obs
+            done = terminated or truncated
+            obs = next_obs
+
+            key = cv2.waitKey(20) # timeout to see the movement
+
+            i = i+1
 
     env.close()
     return
@@ -37,7 +47,7 @@ def run(env_args: dict, n_episodes: int, learning_rate: float, is_training = Fal
     training_period = 5000
     if is_training and record_video:
         env = gym.wrappers.RecordVideo(env, video_folder="videos", name_prefix="training", episode_trigger=lambda x: x % training_period == 0)
-    env = gym.wrappers.RecordEpisodeStatistics(env, buffer_length=n_episodes)    
+    env = gym.wrappers.RecordEpisodeStatistics(env, buffer_length=n_episodes)
 
     # hyperparameters
     start_epsilon = 1.0
@@ -53,11 +63,11 @@ def run(env_args: dict, n_episodes: int, learning_rate: float, is_training = Fal
         epsilon_decay=epsilon_decay,
         final_epsilon=final_epsilon,
         load_from_file=not is_training,
-        use_dict=True
     )
     
     rewards_per_episode = []
     mean_rewards = []
+    epsilon_values = []
     best_reward = -99999
 
     iterable = range(n_episodes)
@@ -75,6 +85,9 @@ def run(env_args: dict, n_episodes: int, learning_rate: float, is_training = Fal
             # play one episode
             i = 0
             while not done:
+                if show_render:
+                    env.render()
+
                 action = agent.get_action(obs, is_training=is_training)
                 # print(f"{episode} - Agent choose action: {action}")
 
@@ -91,6 +104,10 @@ def run(env_args: dict, n_episodes: int, learning_rate: float, is_training = Fal
                 
                 obs = next_obs
                 rewards += reward
+                
+                if show_render:
+                    cv2.waitKey(100)
+
                 i=i+1
             
             if rewards > best_reward:
@@ -99,6 +116,7 @@ def run(env_args: dict, n_episodes: int, learning_rate: float, is_training = Fal
             rewards_per_episode.append(rewards)
             mean_reward = np.mean(rewards_per_episode[len(rewards_per_episode)-100:])
             mean_rewards.append(mean_reward)
+            epsilon_values.append(agent.epsilon)
 
             if verbose and is_training and episode%100==0:
                 print(f"Episode: {episode}, Epsilon: {agent.epsilon:0.2f}, Reward: {rewards:.3f}, Best Reward: {best_reward:.3f}, Mean Reward {mean_reward:0.3f}")
@@ -107,6 +125,8 @@ def run(env_args: dict, n_episodes: int, learning_rate: float, is_training = Fal
         
     except KeyboardInterrupt:
         print("\nCTRL+C pressed.\n")
+    
+    env.close()
 
     # Save on file
     if is_training:
@@ -114,9 +134,9 @@ def run(env_args: dict, n_episodes: int, learning_rate: float, is_training = Fal
 
     # Display plots
     if show_plots:
-        agent.plot_results(mean_rewards, training=is_training, integrated=False)
+        epsilon_values = None if not is_training else epsilon_values
+        agent.plot_results(mean_rewards, epsilon_values, training=is_training, integrated=False)
 
-    env.close()
     return agent
 
 def main():
@@ -134,23 +154,35 @@ def main():
     #     "id": "Taxi-v3",
     # }
 
-    # env_args = {
-    #     "id": "LunarLander-v3",
-    #     "continuous": False,
-    # }
+    # 5_000 and 0.001
+    env_args = {
+        "id": "LunarLander-v3",
+        "continuous": False,
+    }
 
     # 5_000 and 0.9 and 1000 steps
-    env_args = {
-        "id": "MountainCar-v0",
-    }
-    max_episode_steps = 1000
+    # env_args = {
+    #     "id": "MountainCar-v0",
+    # }
+    # max_episode_steps = 1000
+
+    # env_args = {
+    #     "id": "tetris_gymnasium/Tetris"    
+    # }
+
+    # 100_000 and 0.001
+    # env_args = {
+    #     "id": "FlappyBird-v0",
+    #     "use_lidar": False    
+    # }
 
     # TEST
-    # test(env_args, 1)
+    # test(env_args, 3, show_render=True)
+    # return
 
     # Initialise the environment
-    n_episodes = 8_000
-    learning_rate = 0.95
+    n_episodes = 5000
+    learning_rate = 0.001
 
     # TRAINING
     run(env_args, n_episodes, learning_rate, is_training=True, show_plots=True, show_render=False, verbose=True, record_video=False, max_episode_steps=max_episode_steps)
@@ -159,7 +191,7 @@ def main():
     run(env_args, 1000, learning_rate, is_training=False, show_plots=True, show_render=False, verbose=False, record_video=False)
 
     # RENDER
-    run(env_args, 5, learning_rate, is_training=False, show_plots=True, show_render=True, verbose=False, record_video=False)
+    run(env_args, 5, learning_rate, is_training=False, show_plots=False, show_render=True, verbose=False, record_video=False)
 
 if __name__ == '__main__':
     main()
