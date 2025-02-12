@@ -55,7 +55,7 @@ class Agent:
                 self.env_fullname += f"_{v}"
 
         # Create logfile
-        self.logfile = os.path.join(Agent.LOGS_DIRECTORY, f"{self.env_fullname}_{datetime.now().strftime("%Y-%m-%d")}.log")
+        self.logfile = os.path.join(Agent.LOGS_DIRECTORY, f"{self.env_fullname}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.log")
 
         # Initialize hyperparameters
         self.hyperparameters = hyperparameters
@@ -120,9 +120,9 @@ class Agent:
         plt.title(f"N={len(mean_rewards)}, LR={self.learning_rate}, E_DECAY={self.epsilon_decay}, DISCOUNT={self.discount_factor}")
         
         if training:
-            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_fullname}_{len(mean_rewards)}_training_results.png")
+            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_fullname}_{len(mean_rewards)}_training.png")
         else:
-            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_fullname}_{len(mean_rewards)}_test_results.png")
+            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_fullname}_{len(mean_rewards)}_test.png")
 
         plt.savefig(filename)
         plt.tight_layout()
@@ -231,11 +231,11 @@ class Agent:
 
                 # Decay epsilon
                 self.decay_epsilon(is_training)
-            
         except KeyboardInterrupt:
             print("\nCTRL+C pressed.\n")
-        
-        self.env.close()
+        finally:
+            # Close the env
+            self.env.close()
 
         # Save on file
         if is_training:

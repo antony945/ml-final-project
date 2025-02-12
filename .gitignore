@@ -1,4 +1,6 @@
 *.pk1
 videos/
 results/
+logs/
+models/
 .vscode/*

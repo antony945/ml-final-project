@@ -39,10 +39,17 @@ def test(hyperparameters: dict, n_episodes, show_render = True):
 def run(hyperparameters: dict, n_episodes, dqn = False, is_training = False, show_plots = False, show_render = False, verbose = False, record_video = False):
     # Initialise the environment
     env = gym.make(**hyperparameters['env_args'], render_mode="rgb_array" if not show_render else "human") # or "none"
+    # env.metadata['render_fps'] = 120
 
-    training_period = 5000
-    if is_training and record_video:
-        env = gym.wrappers.RecordVideo(env, video_folder="videos", name_prefix="training", episode_trigger=lambda x: x % training_period == 0)
+    if is_training:
+        training_period = 1000
+        name_prefix = "training"
+    else:
+        training_period = 100
+        name_prefix = "test"
+
+    if record_video:
+        env = gym.wrappers.RecordVideo(env, video_folder="videos", name_prefix=name_prefix, episode_trigger=lambda x: x % training_period == 1)
     # env = gym.wrappers.RecordEpisodeStatistics(env, buffer_length=hyperparameters['n_episodes'])
 
     if dqn:
@@ -73,10 +80,10 @@ def main(hyperparameter_set):
     DQN = True
 
     # TRAINING
-    run(hyperparameters, hyperparameters['n_episodes'], dqn=DQN, is_training=True, show_plots=True, show_render=False, verbose=True, record_video=False)
+    run(hyperparameters, hyperparameters['n_episodes'], dqn=DQN, is_training=True, show_plots=True, show_render=False, verbose=True, record_video=True)
 
     # RUN
-    run(hyperparameters, 1000, dqn=DQN, is_training=False, show_plots=True, show_render=False, verbose=False, record_video=False)
+    run(hyperparameters, 1000, dqn=DQN, is_training=False, show_plots=True, show_render=False, verbose=False, record_video=True)
 
     # RENDER
     run(hyperparameters, 5, dqn=DQN, is_training=False, show_plots=False, show_render=True, verbose=False, record_video=False)

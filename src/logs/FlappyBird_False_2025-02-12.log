@@ -1,101 +1,233 @@
-2025/02/12 06:19:01: Training starting...
-2025/02/12 06:19:01: Episode 0) New Best Reward -8.10 (+100.0%), saving model...
-2025/02/12 06:19:01: Episode 0) Epsilon: 1.00, Reward: -8.100, Best Reward: -8.10, Mean Reward -8.10
-2025/02/12 06:19:01: Episode 4) New Best Reward -7.50 (+7.4%), saving model...
-2025/02/12 06:19:01: Episode 11) New Best Reward -6.90 (+8.0%), saving model...
-2025/02/12 06:19:01: Episode 13) New Best Reward -5.70 (+17.4%), saving model...
-2025/02/12 06:19:01: Episode 28) New Best Reward -4.50 (+21.1%), saving model...
-2025/02/12 06:19:02: Episode 80) New Best Reward -2.70 (+40.0%), saving model...
-2025/02/12 06:19:02: Episode 100) Epsilon: 0.95, Reward: -7.500, Best Reward: -2.70, Mean Reward -7.53
-2025/02/12 06:19:04: Episode 200) Epsilon: 0.90, Reward: -7.500, Best Reward: -2.70, Mean Reward -7.65
-2025/02/12 06:19:06: Episode 300) Epsilon: 0.86, Reward: -6.300, Best Reward: -2.70, Mean Reward -7.23
-2025/02/12 06:19:08: Episode 400) Epsilon: 0.82, Reward: -7.500, Best Reward: -2.70, Mean Reward -6.70
-2025/02/12 06:19:08: Episode 404) New Best Reward 0.90 (+133.3%), saving model...
-2025/02/12 06:19:10: Episode 500) Epsilon: 0.78, Reward: -7.500, Best Reward: 0.90, Mean Reward -6.38
-2025/02/12 06:19:11: Episode 566) New Best Reward 3.90 (+333.3%), saving model...
-2025/02/12 06:19:12: Episode 600) Epsilon: 0.74, Reward: -6.300, Best Reward: 3.90, Mean Reward -6.10
-2025/02/12 06:19:14: Episode 700) Epsilon: 0.70, Reward: -2.700, Best Reward: 3.90, Mean Reward -5.42
-2025/02/12 06:19:16: Episode 800) Epsilon: 0.67, Reward: -6.300, Best Reward: 3.90, Mean Reward -5.60
-2025/02/12 06:19:18: Episode 900) Epsilon: 0.64, Reward: -4.500, Best Reward: 3.90, Mean Reward -5.34
-2025/02/12 06:19:21: Episode 1000) Epsilon: 0.61, Reward: -6.300, Best Reward: 3.90, Mean Reward -4.47
-2025/02/12 06:19:23: Episode 1100) Epsilon: 0.58, Reward: -6.300, Best Reward: 3.90, Mean Reward -4.57
-2025/02/12 06:19:25: Episode 1200) Epsilon: 0.55, Reward: -5.700, Best Reward: 3.90, Mean Reward -3.96
-2025/02/12 06:19:26: Episode 1237) New Best Reward 4.30 (+10.3%), saving model...
-2025/02/12 06:19:27: Episode 1275) New Best Reward 6.30 (+46.5%), saving model...
-2025/02/12 06:19:28: Episode 1300) Epsilon: 0.52, Reward: -6.900, Best Reward: 6.30, Mean Reward -3.70
-2025/02/12 06:19:30: Episode 1400) Epsilon: 0.50, Reward: -5.700, Best Reward: 6.30, Mean Reward -2.96
-2025/02/12 06:19:33: Episode 1500) Epsilon: 0.47, Reward: 0.300, Best Reward: 6.30, Mean Reward -3.31
-2025/02/12 06:19:36: Episode 1600) Epsilon: 0.45, Reward: -3.300, Best Reward: 6.30, Mean Reward -2.84
-2025/02/12 06:19:39: Episode 1700) Epsilon: 0.43, Reward: -8.100, Best Reward: 6.30, Mean Reward -2.29
-2025/02/12 06:19:41: Episode 1800) Epsilon: 0.41, Reward: -4.500, Best Reward: 6.30, Mean Reward -1.26
-2025/02/12 06:19:44: Episode 1900) Epsilon: 0.39, Reward: 3.900, Best Reward: 6.30, Mean Reward -0.76
-2025/02/12 06:19:47: Episode 2000) Epsilon: 0.37, Reward: -4.500, Best Reward: 6.30, Mean Reward -0.66
-2025/02/12 06:19:49: Episode 2100) Epsilon: 0.35, Reward: -6.300, Best Reward: 6.30, Mean Reward -0.80
-2025/02/12 06:19:52: Episode 2200) Epsilon: 0.33, Reward: 0.900, Best Reward: 6.30, Mean Reward -0.48
-2025/02/12 06:19:55: Episode 2294) New Best Reward 8.40 (+33.3%), saving model...
-2025/02/12 06:19:55: Episode 2300) Epsilon: 0.32, Reward: 6.800, Best Reward: 8.40, Mean Reward 0.20
-2025/02/12 06:19:58: Episode 2400) Epsilon: 0.30, Reward: 3.900, Best Reward: 8.40, Mean Reward 1.39
-2025/02/12 06:20:01: Episode 2500) Epsilon: 0.29, Reward: -6.900, Best Reward: 8.40, Mean Reward 0.68
-2025/02/12 06:20:05: Episode 2600) Epsilon: 0.27, Reward: 0.900, Best Reward: 8.40, Mean Reward 1.96
-2025/02/12 06:20:08: Episode 2700) Epsilon: 0.26, Reward: 4.500, Best Reward: 8.40, Mean Reward 1.90
-2025/02/12 06:20:11: Episode 2800) Epsilon: 0.25, Reward: 3.900, Best Reward: 8.40, Mean Reward 2.28
-2025/02/12 06:20:14: Episode 2900) Epsilon: 0.23, Reward: -0.900, Best Reward: 8.40, Mean Reward 2.59
-2025/02/12 06:20:17: Episode 3000) Epsilon: 0.22, Reward: 4.300, Best Reward: 8.40, Mean Reward 2.04
-2025/02/12 06:20:21: Episode 3100) Epsilon: 0.21, Reward: 6.700, Best Reward: 8.40, Mean Reward 3.21
-2025/02/12 06:20:24: Episode 3200) Epsilon: 0.20, Reward: 3.900, Best Reward: 8.40, Mean Reward 3.32
-2025/02/12 06:20:27: Episode 3300) Epsilon: 0.19, Reward: -3.300, Best Reward: 8.40, Mean Reward 3.34
-2025/02/12 06:20:31: Episode 3400) Epsilon: 0.18, Reward: 3.900, Best Reward: 8.40, Mean Reward 3.62
-2025/02/12 06:20:34: Episode 3500) Epsilon: 0.17, Reward: 4.900, Best Reward: 8.40, Mean Reward 3.69
-2025/02/12 06:20:37: Episode 3563) New Best Reward 8.60 (+2.4%), saving model...
-2025/02/12 06:20:38: Episode 3600) Epsilon: 0.17, Reward: 3.900, Best Reward: 8.60, Mean Reward 3.69
-2025/02/12 06:20:40: Episode 3649) New Best Reward 12.90 (+50.0%), saving model...
-2025/02/12 06:20:41: Episode 3700) Epsilon: 0.16, Reward: 3.900, Best Reward: 12.90, Mean Reward 3.81
-2025/02/12 06:20:45: Episode 3800) Epsilon: 0.15, Reward: 3.900, Best Reward: 12.90, Mean Reward 4.19
-2025/02/12 06:20:49: Episode 3900) Epsilon: 0.14, Reward: 3.900, Best Reward: 12.90, Mean Reward 4.24
-2025/02/12 06:20:52: Episode 4000) Epsilon: 0.14, Reward: 4.300, Best Reward: 12.90, Mean Reward 3.81
-2025/02/12 06:20:56: Episode 4100) Epsilon: 0.13, Reward: 4.300, Best Reward: 12.90, Mean Reward 4.40
-2025/02/12 06:20:59: Episode 4200) Epsilon: 0.12, Reward: 4.700, Best Reward: 12.90, Mean Reward 4.19
-2025/02/12 06:21:03: Episode 4300) Epsilon: 0.12, Reward: 3.900, Best Reward: 12.90, Mean Reward 4.32
-2025/02/12 06:21:07: Episode 4400) Epsilon: 0.11, Reward: 3.900, Best Reward: 12.90, Mean Reward 4.56
-2025/02/12 06:21:11: Episode 4500) Epsilon: 0.11, Reward: 3.900, Best Reward: 12.90, Mean Reward 4.35
-2025/02/12 06:21:17: Episode 4599) New Best Reward 13.00 (+0.8%), saving model...
-2025/02/12 06:21:17: Episode 4600) Epsilon: 0.10, Reward: 6.500, Best Reward: 13.00, Mean Reward 4.63
-2025/02/12 06:21:23: Episode 4700) Epsilon: 0.10, Reward: 3.900, Best Reward: 13.00, Mean Reward 4.79
-2025/02/12 06:21:29: Episode 4800) Epsilon: 0.09, Reward: 3.900, Best Reward: 13.00, Mean Reward 4.94
-2025/02/12 06:21:34: Episode 4900) Epsilon: 0.09, Reward: 3.900, Best Reward: 13.00, Mean Reward 4.53
-2025/02/12 06:21:40: Episode 5000) Epsilon: 0.08, Reward: 6.500, Best Reward: 13.00, Mean Reward 4.49
-2025/02/12 06:21:46: Episode 5100) Epsilon: 0.08, Reward: 3.900, Best Reward: 13.00, Mean Reward 4.92
-2025/02/12 06:21:51: Episode 5200) Epsilon: 0.07, Reward: 3.900, Best Reward: 13.00, Mean Reward 4.96
-2025/02/12 06:21:57: Episode 5300) Epsilon: 0.07, Reward: 4.700, Best Reward: 13.00, Mean Reward 4.52
-2025/02/12 06:22:02: Episode 5400) Epsilon: 0.07, Reward: 6.300, Best Reward: 13.00, Mean Reward 3.95
-2025/02/12 06:22:07: Episode 5500) Epsilon: 0.06, Reward: 8.400, Best Reward: 13.00, Mean Reward 4.50
-2025/02/12 06:22:10: Episode 5551) New Best Reward 17.90 (+37.7%), saving model...
-2025/02/12 06:22:14: Episode 5600) Epsilon: 0.06, Reward: 5.000, Best Reward: 17.90, Mean Reward 5.23
-2025/02/12 06:22:19: Episode 5700) Epsilon: 0.06, Reward: 6.800, Best Reward: 17.90, Mean Reward 4.69
-2025/02/12 06:22:25: Episode 5800) Epsilon: 0.05, Reward: 3.900, Best Reward: 17.90, Mean Reward 4.81
-2025/02/12 06:22:31: Episode 5900) Epsilon: 0.05, Reward: 3.900, Best Reward: 17.90, Mean Reward 5.03
-2025/02/12 06:22:37: Episode 6000) Epsilon: 0.05, Reward: 6.500, Best Reward: 17.90, Mean Reward 5.00
-2025/02/12 06:22:42: Episode 6100) Epsilon: 0.05, Reward: 6.500, Best Reward: 17.90, Mean Reward 5.08
-2025/02/12 06:22:47: Episode 6200) Epsilon: 0.05, Reward: 3.900, Best Reward: 17.90, Mean Reward 4.45
-2025/02/12 06:22:53: Episode 6300) Epsilon: 0.05, Reward: 3.900, Best Reward: 17.90, Mean Reward 4.39
-2025/02/12 06:22:59: Episode 6400) Epsilon: 0.05, Reward: 3.900, Best Reward: 17.90, Mean Reward 5.03
-2025/02/12 06:23:04: Episode 6500) Epsilon: 0.05, Reward: 3.900, Best Reward: 17.90, Mean Reward 4.76
-2025/02/12 06:23:10: Episode 6600) Epsilon: 0.05, Reward: 3.900, Best Reward: 17.90, Mean Reward 4.47
-2025/02/12 06:23:16: Episode 6700) Epsilon: 0.05, Reward: 8.400, Best Reward: 17.90, Mean Reward 4.37
-2025/02/12 06:23:20: Episode 6777) New Best Reward 20.70 (+15.6%), saving model...
-2025/02/12 06:23:21: Episode 6800) Epsilon: 0.05, Reward: 3.900, Best Reward: 20.70, Mean Reward 5.21
-2025/02/12 06:23:27: Episode 6900) Epsilon: 0.05, Reward: 3.900, Best Reward: 20.70, Mean Reward 4.09
-2025/02/12 06:23:32: Episode 7000) Epsilon: 0.05, Reward: 3.900, Best Reward: 20.70, Mean Reward 4.80
-2025/02/12 06:23:38: Episode 7100) Epsilon: 0.05, Reward: 4.300, Best Reward: 20.70, Mean Reward 4.46
-2025/02/12 06:23:44: Episode 7200) Epsilon: 0.05, Reward: 6.700, Best Reward: 20.70, Mean Reward 4.77
-2025/02/12 06:23:50: Episode 7300) Epsilon: 0.05, Reward: 3.900, Best Reward: 20.70, Mean Reward 5.02
-2025/02/12 06:23:54: Episode 7380) New Best Reward 22.50 (+8.7%), saving model...
-2025/02/12 06:23:55: Episode 7400) Epsilon: 0.05, Reward: 3.900, Best Reward: 22.50, Mean Reward 4.99
-2025/02/12 06:24:00: Episode 7500) Epsilon: 0.05, Reward: 8.600, Best Reward: 22.50, Mean Reward 4.67
-2025/02/12 06:24:05: Episode 7600) Epsilon: 0.05, Reward: 2.000, Best Reward: 22.50, Mean Reward 4.38
-2025/02/12 06:24:11: Episode 7700) Epsilon: 0.05, Reward: 4.700, Best Reward: 22.50, Mean Reward 4.70
-2025/02/12 06:24:17: Episode 7800) Epsilon: 0.05, Reward: 3.900, Best Reward: 22.50, Mean Reward 4.88
-2025/02/12 06:24:23: Episode 7900) Epsilon: 0.05, Reward: 4.400, Best Reward: 22.50, Mean Reward 5.50
-2025/02/12 06:24:28: Episode 8000) Epsilon: 0.05, Reward: 4.600, Best Reward: 22.50, Mean Reward 4.57
-2025/02/12 06:24:33: Episode 8100) Epsilon: 0.05, Reward: 8.400, Best Reward: 22.50, Mean Reward 6.00
-2025/02/12 06:24:36: Episode 8200) Epsilon: 0.05, Reward: 3.900, Best Reward: 22.50, Mean Reward 4.19
+2025/02/12 06:40:25: Training starting...
+2025/02/12 06:40:25: Episode 0) New Best Reward -8.10 (+100.0%), saving model...
+2025/02/12 06:40:25: Episode 0) Epsilon: 1.00, Reward: -8.100, Best Reward: -8.10, Mean Reward -8.10
+2025/02/12 06:40:25: Episode 2) New Best Reward -6.90 (+14.8%), saving model...
+2025/02/12 06:40:26: Episode 14) New Best Reward -5.70 (+17.4%), saving model...
+2025/02/12 06:40:26: Episode 16) New Best Reward -5.10 (+10.5%), saving model...
+2025/02/12 06:40:26: Episode 46) New Best Reward -4.50 (+11.8%), saving model...
+2025/02/12 06:40:26: Episode 50) New Best Reward -3.90 (+13.3%), saving model...
+2025/02/12 06:40:27: Episode 100) Epsilon: 1.00, Reward: -6.300, Best Reward: -3.90, Mean Reward -7.36
+2025/02/12 06:40:28: Episode 163) New Best Reward -1.50 (+61.5%), saving model...
+2025/02/12 06:40:29: Episode 200) Epsilon: 0.99, Reward: -7.500, Best Reward: -1.50, Mean Reward -7.54
+2025/02/12 06:40:31: Episode 300) Epsilon: 0.99, Reward: -7.500, Best Reward: -1.50, Mean Reward -7.39
+2025/02/12 06:40:32: Episode 400) Epsilon: 0.98, Reward: -8.100, Best Reward: -1.50, Mean Reward -7.62
+2025/02/12 06:40:34: Episode 500) Epsilon: 0.98, Reward: -8.700, Best Reward: -1.50, Mean Reward -7.66
+2025/02/12 06:40:36: Episode 600) Epsilon: 0.97, Reward: -8.100, Best Reward: -1.50, Mean Reward -7.62
+2025/02/12 06:40:38: Episode 700) Epsilon: 0.97, Reward: -7.500, Best Reward: -1.50, Mean Reward -7.49
+2025/02/12 06:40:39: Episode 800) Epsilon: 0.96, Reward: -7.500, Best Reward: -1.50, Mean Reward -7.55
+2025/02/12 06:40:41: Episode 900) Epsilon: 0.96, Reward: -8.100, Best Reward: -1.50, Mean Reward -7.62
+2025/02/12 06:40:43: Episode 1000) Epsilon: 0.95, Reward: -6.900, Best Reward: -1.50, Mean Reward -7.56
+2025/02/12 06:40:45: Episode 1100) Epsilon: 0.95, Reward: -8.100, Best Reward: -1.50, Mean Reward -7.64
+2025/02/12 06:40:47: Episode 1200) Epsilon: 0.94, Reward: -8.100, Best Reward: -1.50, Mean Reward -7.68
+2025/02/12 06:40:48: Episode 1300) Epsilon: 0.94, Reward: -8.100, Best Reward: -1.50, Mean Reward -7.61
+2025/02/12 06:40:51: Episode 1400) Epsilon: 0.93, Reward: -8.100, Best Reward: -1.50, Mean Reward -7.45
+2025/02/12 06:40:53: Episode 1500) Epsilon: 0.93, Reward: -8.700, Best Reward: -1.50, Mean Reward -7.44
+2025/02/12 06:40:55: Episode 1600) Epsilon: 0.92, Reward: -6.900, Best Reward: -1.50, Mean Reward -7.34
+2025/02/12 06:40:56: Episode 1675) New Best Reward -0.90 (+40.0%), saving model...
+2025/02/12 06:40:56: Episode 1700) Epsilon: 0.92, Reward: -8.100, Best Reward: -0.90, Mean Reward -7.21
+2025/02/12 06:40:58: Episode 1800) Epsilon: 0.91, Reward: -5.700, Best Reward: -0.90, Mean Reward -6.89
+2025/02/12 06:41:00: Episode 1900) Epsilon: 0.91, Reward: -6.900, Best Reward: -0.90, Mean Reward -6.97
+2025/02/12 06:41:02: Episode 2000) Epsilon: 0.90, Reward: -7.500, Best Reward: -0.90, Mean Reward -7.07
+2025/02/12 06:41:04: Episode 2100) Epsilon: 0.90, Reward: -8.700, Best Reward: -0.90, Mean Reward -7.07
+2025/02/12 06:41:06: Episode 2200) Epsilon: 0.90, Reward: -6.300, Best Reward: -0.90, Mean Reward -7.06
+2025/02/12 06:41:08: Episode 2286) New Best Reward -0.30 (+66.7%), saving model...
+2025/02/12 06:41:08: Episode 2300) Epsilon: 0.89, Reward: -8.700, Best Reward: -0.30, Mean Reward -7.07
+2025/02/12 06:41:10: Episode 2400) Epsilon: 0.89, Reward: -7.500, Best Reward: -0.30, Mean Reward -7.09
+2025/02/12 06:41:12: Episode 2500) Epsilon: 0.88, Reward: -7.500, Best Reward: -0.30, Mean Reward -6.83
+2025/02/12 06:41:15: Episode 2600) Epsilon: 0.88, Reward: -6.300, Best Reward: -0.30, Mean Reward -6.91
+2025/02/12 06:41:17: Episode 2700) Epsilon: 0.87, Reward: -6.300, Best Reward: -0.30, Mean Reward -6.96
+2025/02/12 06:41:17: Episode 2707) New Best Reward 0.30 (+200.0%), saving model...
+2025/02/12 06:41:18: Episode 2800) Epsilon: 0.87, Reward: -8.700, Best Reward: 0.30, Mean Reward -6.53
+2025/02/12 06:41:20: Episode 2900) Epsilon: 0.87, Reward: -7.500, Best Reward: 0.30, Mean Reward -6.70
+2025/02/12 06:41:21: Episode 2948) New Best Reward 1.50 (+400.0%), saving model...
+2025/02/12 06:41:22: Episode 3000) Epsilon: 0.86, Reward: -8.100, Best Reward: 1.50, Mean Reward -6.64
+2025/02/12 06:41:25: Episode 3100) Epsilon: 0.86, Reward: -6.900, Best Reward: 1.50, Mean Reward -6.67
+2025/02/12 06:41:26: Episode 3170) New Best Reward 3.90 (+160.0%), saving model...
+2025/02/12 06:41:26: Episode 3200) Epsilon: 0.85, Reward: -7.500, Best Reward: 3.90, Mean Reward -6.24
+2025/02/12 06:41:28: Episode 3300) Epsilon: 0.85, Reward: -7.500, Best Reward: 3.90, Mean Reward -6.58
+2025/02/12 06:41:30: Episode 3400) Epsilon: 0.84, Reward: -7.500, Best Reward: 3.90, Mean Reward -6.65
+2025/02/12 06:41:32: Episode 3500) Epsilon: 0.84, Reward: -6.900, Best Reward: 3.90, Mean Reward -6.60
+2025/02/12 06:41:34: Episode 3600) Epsilon: 0.84, Reward: -6.900, Best Reward: 3.90, Mean Reward -6.41
+2025/02/12 06:41:36: Episode 3700) Epsilon: 0.83, Reward: -7.500, Best Reward: 3.90, Mean Reward -6.46
+2025/02/12 06:41:38: Episode 3800) Epsilon: 0.83, Reward: -7.500, Best Reward: 3.90, Mean Reward -6.46
+2025/02/12 06:41:40: Episode 3900) Epsilon: 0.82, Reward: -5.700, Best Reward: 3.90, Mean Reward -6.49
+2025/02/12 06:41:42: Episode 4000) Epsilon: 0.82, Reward: -7.500, Best Reward: 3.90, Mean Reward -6.80
+2025/02/12 06:41:45: Episode 4100) Epsilon: 0.81, Reward: -7.500, Best Reward: 3.90, Mean Reward -6.47
+2025/02/12 06:41:47: Episode 4200) Epsilon: 0.81, Reward: -8.100, Best Reward: 3.90, Mean Reward -6.53
+2025/02/12 06:41:49: Episode 4300) Epsilon: 0.81, Reward: -5.700, Best Reward: 3.90, Mean Reward -6.38
+2025/02/12 06:41:51: Episode 4400) Epsilon: 0.80, Reward: -1.500, Best Reward: 3.90, Mean Reward -6.58
+2025/02/12 06:41:53: Episode 4500) Epsilon: 0.80, Reward: -5.100, Best Reward: 3.90, Mean Reward -6.29
+2025/02/12 06:41:55: Episode 4600) Epsilon: 0.79, Reward: -4.500, Best Reward: 3.90, Mean Reward -6.31
+2025/02/12 06:41:57: Episode 4700) Epsilon: 0.79, Reward: -4.500, Best Reward: 3.90, Mean Reward -6.20
+2025/02/12 06:41:59: Episode 4800) Epsilon: 0.79, Reward: -6.900, Best Reward: 3.90, Mean Reward -6.28
+2025/02/12 06:42:01: Episode 4900) Epsilon: 0.78, Reward: -5.700, Best Reward: 3.90, Mean Reward -6.06
+2025/02/12 06:42:03: Episode 5000) Epsilon: 0.78, Reward: -6.900, Best Reward: 3.90, Mean Reward -6.31
+2025/02/12 06:42:05: Episode 5100) Epsilon: 0.77, Reward: -6.300, Best Reward: 3.90, Mean Reward -6.38
+2025/02/12 06:42:08: Episode 5200) Epsilon: 0.77, Reward: -6.900, Best Reward: 3.90, Mean Reward -6.34
+2025/02/12 06:42:10: Episode 5300) Epsilon: 0.77, Reward: -3.300, Best Reward: 3.90, Mean Reward -5.92
+2025/02/12 06:42:12: Episode 5400) Epsilon: 0.76, Reward: -7.500, Best Reward: 3.90, Mean Reward -6.07
+2025/02/12 06:42:14: Episode 5500) Epsilon: 0.76, Reward: -5.100, Best Reward: 3.90, Mean Reward -6.23
+2025/02/12 06:42:16: Episode 5600) Epsilon: 0.76, Reward: -3.300, Best Reward: 3.90, Mean Reward -6.11
+2025/02/12 06:42:18: Episode 5700) Epsilon: 0.75, Reward: -6.300, Best Reward: 3.90, Mean Reward -6.22
+2025/02/12 06:42:21: Episode 5800) Epsilon: 0.75, Reward: -6.300, Best Reward: 3.90, Mean Reward -5.65
+2025/02/12 06:42:23: Episode 5900) Epsilon: 0.74, Reward: -6.300, Best Reward: 3.90, Mean Reward -5.53
+2025/02/12 06:42:25: Episode 6000) Epsilon: 0.74, Reward: -6.900, Best Reward: 3.90, Mean Reward -5.77
+2025/02/12 06:42:28: Episode 6100) Epsilon: 0.74, Reward: -0.900, Best Reward: 3.90, Mean Reward -5.74
+2025/02/12 06:42:30: Episode 6200) Epsilon: 0.73, Reward: -7.500, Best Reward: 3.90, Mean Reward -6.22
+2025/02/12 06:42:32: Episode 6300) Epsilon: 0.73, Reward: -7.500, Best Reward: 3.90, Mean Reward -5.80
+2025/02/12 06:42:34: Episode 6400) Epsilon: 0.73, Reward: -7.500, Best Reward: 3.90, Mean Reward -5.89
+2025/02/12 06:42:35: Episode 6434) New Best Reward 4.50 (+15.4%), saving model...
+2025/02/12 06:42:36: Episode 6500) Epsilon: 0.72, Reward: -4.500, Best Reward: 4.50, Mean Reward -5.81
+2025/02/12 06:42:39: Episode 6600) Epsilon: 0.72, Reward: -6.900, Best Reward: 4.50, Mean Reward -5.72
+2025/02/12 06:42:41: Episode 6700) Epsilon: 0.72, Reward: -5.700, Best Reward: 4.50, Mean Reward -5.42
+2025/02/12 06:42:43: Episode 6800) Epsilon: 0.71, Reward: -6.300, Best Reward: 4.50, Mean Reward -5.59
+2025/02/12 06:42:44: Episode 6859) New Best Reward 4.90 (+8.9%), saving model...
+2025/02/12 06:42:45: Episode 6900) Epsilon: 0.71, Reward: -0.300, Best Reward: 4.90, Mean Reward -5.23
+2025/02/12 06:42:48: Episode 7000) Epsilon: 0.70, Reward: -6.300, Best Reward: 4.90, Mean Reward -5.72
+2025/02/12 06:42:50: Episode 7100) Epsilon: 0.70, Reward: -6.900, Best Reward: 4.90, Mean Reward -5.63
+2025/02/12 06:42:53: Episode 7200) Epsilon: 0.70, Reward: -6.300, Best Reward: 4.90, Mean Reward -5.78
+2025/02/12 06:42:55: Episode 7300) Epsilon: 0.69, Reward: -5.700, Best Reward: 4.90, Mean Reward -5.67
+2025/02/12 06:42:57: Episode 7400) Epsilon: 0.69, Reward: -6.900, Best Reward: 4.90, Mean Reward -5.53
+2025/02/12 06:43:00: Episode 7500) Epsilon: 0.69, Reward: -5.700, Best Reward: 4.90, Mean Reward -5.08
+2025/02/12 06:43:02: Episode 7600) Epsilon: 0.68, Reward: -7.500, Best Reward: 4.90, Mean Reward -5.53
+2025/02/12 06:43:04: Episode 7700) Epsilon: 0.68, Reward: -0.300, Best Reward: 4.90, Mean Reward -5.33
+2025/02/12 06:43:06: Episode 7800) Epsilon: 0.68, Reward: -7.500, Best Reward: 4.90, Mean Reward -5.32
+2025/02/12 06:43:09: Episode 7900) Epsilon: 0.67, Reward: -0.900, Best Reward: 4.90, Mean Reward -5.39
+2025/02/12 06:43:12: Episode 8000) Epsilon: 0.67, Reward: -4.500, Best Reward: 4.90, Mean Reward -5.52
+2025/02/12 06:43:14: Episode 8100) Epsilon: 0.67, Reward: -5.100, Best Reward: 4.90, Mean Reward -5.26
+2025/02/12 06:43:17: Episode 8200) Epsilon: 0.66, Reward: -3.900, Best Reward: 4.90, Mean Reward -5.26
+2025/02/12 06:43:19: Episode 8300) Epsilon: 0.66, Reward: -6.900, Best Reward: 4.90, Mean Reward -5.29
+2025/02/12 06:43:21: Episode 8400) Epsilon: 0.66, Reward: -6.300, Best Reward: 4.90, Mean Reward -5.38
+2025/02/12 06:43:24: Episode 8500) Epsilon: 0.65, Reward: -7.500, Best Reward: 4.90, Mean Reward -4.70
+2025/02/12 06:43:26: Episode 8600) Epsilon: 0.65, Reward: -6.900, Best Reward: 4.90, Mean Reward -4.95
+2025/02/12 06:43:28: Episode 8700) Epsilon: 0.65, Reward: -5.700, Best Reward: 4.90, Mean Reward -4.49
+2025/02/12 06:43:31: Episode 8800) Epsilon: 0.64, Reward: -4.500, Best Reward: 4.90, Mean Reward -5.38
+2025/02/12 06:43:33: Episode 8900) Epsilon: 0.64, Reward: -7.500, Best Reward: 4.90, Mean Reward -4.98
+2025/02/12 06:43:36: Episode 9000) Epsilon: 0.64, Reward: -3.300, Best Reward: 4.90, Mean Reward -4.98
+2025/02/12 06:43:39: Episode 9100) Epsilon: 0.63, Reward: -7.500, Best Reward: 4.90, Mean Reward -4.40
+2025/02/12 06:43:41: Episode 9200) Epsilon: 0.63, Reward: -5.100, Best Reward: 4.90, Mean Reward -4.95
+2025/02/12 06:43:44: Episode 9300) Epsilon: 0.63, Reward: -6.300, Best Reward: 4.90, Mean Reward -4.84
+2025/02/12 06:43:46: Episode 9400) Epsilon: 0.62, Reward: -6.900, Best Reward: 4.90, Mean Reward -4.05
+2025/02/12 06:43:48: Episode 9500) Epsilon: 0.62, Reward: -3.300, Best Reward: 4.90, Mean Reward -4.88
+2025/02/12 06:43:51: Episode 9600) Epsilon: 0.62, Reward: -7.500, Best Reward: 4.90, Mean Reward -4.83
+2025/02/12 06:43:53: Episode 9700) Epsilon: 0.62, Reward: -5.100, Best Reward: 4.90, Mean Reward -4.40
+2025/02/12 06:43:56: Episode 9800) Epsilon: 0.61, Reward: -5.100, Best Reward: 4.90, Mean Reward -4.02
+2025/02/12 06:43:58: Episode 9900) Epsilon: 0.61, Reward: -5.700, Best Reward: 4.90, Mean Reward -4.34
+2025/02/12 06:44:01: Episode 10000) Epsilon: 0.61, Reward: 3.900, Best Reward: 4.90, Mean Reward -4.38
+2025/02/12 06:44:03: Episode 10100) Epsilon: 0.60, Reward: -4.500, Best Reward: 4.90, Mean Reward -4.15
+2025/02/12 06:44:06: Episode 10200) Epsilon: 0.60, Reward: -5.700, Best Reward: 4.90, Mean Reward -3.77
+2025/02/12 06:44:09: Episode 10300) Epsilon: 0.60, Reward: -3.900, Best Reward: 4.90, Mean Reward -4.10
+2025/02/12 06:44:09: Episode 10313) New Best Reward 6.10 (+24.5%), saving model...
+2025/02/12 06:44:11: Episode 10400) Epsilon: 0.59, Reward: -6.300, Best Reward: 6.10, Mean Reward -4.12
+2025/02/12 06:44:13: Episode 10500) Epsilon: 0.59, Reward: -4.500, Best Reward: 6.10, Mean Reward -4.37
+2025/02/12 06:44:16: Episode 10600) Epsilon: 0.59, Reward: -2.100, Best Reward: 6.10, Mean Reward -4.00
+2025/02/12 06:44:18: Episode 10700) Epsilon: 0.59, Reward: -6.900, Best Reward: 6.10, Mean Reward -3.32
+2025/02/12 06:44:21: Episode 10800) Epsilon: 0.58, Reward: 0.300, Best Reward: 6.10, Mean Reward -4.38
+2025/02/12 06:44:23: Episode 10900) Epsilon: 0.58, Reward: -6.300, Best Reward: 6.10, Mean Reward -3.70
+2025/02/12 06:44:25: Episode 11000) Epsilon: 0.58, Reward: -5.100, Best Reward: 6.10, Mean Reward -4.15
+2025/02/12 06:44:28: Episode 11100) Epsilon: 0.57, Reward: -5.700, Best Reward: 6.10, Mean Reward -4.31
+2025/02/12 06:44:31: Episode 11200) Epsilon: 0.57, Reward: -5.700, Best Reward: 6.10, Mean Reward -4.22
+2025/02/12 06:44:34: Episode 11300) Epsilon: 0.57, Reward: -8.100, Best Reward: 6.10, Mean Reward -3.80
+2025/02/12 06:44:36: Episode 11400) Epsilon: 0.57, Reward: 1.500, Best Reward: 6.10, Mean Reward -3.26
+2025/02/12 06:44:39: Episode 11500) Epsilon: 0.56, Reward: -1.500, Best Reward: 6.10, Mean Reward -3.37
+2025/02/12 06:44:41: Episode 11600) Epsilon: 0.56, Reward: -3.900, Best Reward: 6.10, Mean Reward -4.32
+2025/02/12 06:44:44: Episode 11700) Epsilon: 0.56, Reward: -5.100, Best Reward: 6.10, Mean Reward -3.86
+2025/02/12 06:44:46: Episode 11800) Epsilon: 0.55, Reward: -4.500, Best Reward: 6.10, Mean Reward -3.72
+2025/02/12 06:44:49: Episode 11900) Epsilon: 0.55, Reward: -4.500, Best Reward: 6.10, Mean Reward -3.73
+2025/02/12 06:44:52: Episode 12000) Epsilon: 0.55, Reward: -7.500, Best Reward: 6.10, Mean Reward -3.28
+2025/02/12 06:44:55: Episode 12100) Epsilon: 0.55, Reward: -5.700, Best Reward: 6.10, Mean Reward -3.01
+2025/02/12 06:44:57: Episode 12200) Epsilon: 0.54, Reward: -3.300, Best Reward: 6.10, Mean Reward -3.40
+2025/02/12 06:45:00: Episode 12300) Epsilon: 0.54, Reward: -4.500, Best Reward: 6.10, Mean Reward -3.11
+2025/02/12 06:45:02: Episode 12400) Epsilon: 0.54, Reward: -5.700, Best Reward: 6.10, Mean Reward -3.30
+2025/02/12 06:45:05: Episode 12500) Epsilon: 0.54, Reward: -4.500, Best Reward: 6.10, Mean Reward -3.23
+2025/02/12 06:45:08: Episode 12600) Epsilon: 0.53, Reward: -5.100, Best Reward: 6.10, Mean Reward -3.58
+2025/02/12 06:45:10: Episode 12700) Epsilon: 0.53, Reward: 2.100, Best Reward: 6.10, Mean Reward -2.78
+2025/02/12 06:45:13: Episode 12800) Epsilon: 0.53, Reward: -5.100, Best Reward: 6.10, Mean Reward -3.01
+2025/02/12 06:45:16: Episode 12900) Epsilon: 0.52, Reward: -6.900, Best Reward: 6.10, Mean Reward -3.50
+2025/02/12 06:45:19: Episode 13000) Epsilon: 0.52, Reward: -5.700, Best Reward: 6.10, Mean Reward -3.38
+2025/02/12 06:45:22: Episode 13100) Epsilon: 0.52, Reward: 0.300, Best Reward: 6.10, Mean Reward -3.05
+2025/02/12 06:45:24: Episode 13200) Epsilon: 0.52, Reward: -6.900, Best Reward: 6.10, Mean Reward -3.13
+2025/02/12 06:45:27: Episode 13300) Epsilon: 0.51, Reward: 0.300, Best Reward: 6.10, Mean Reward -2.83
+2025/02/12 06:45:29: Episode 13400) Epsilon: 0.51, Reward: -8.100, Best Reward: 6.10, Mean Reward -2.41
+2025/02/12 06:45:32: Episode 13500) Epsilon: 0.51, Reward: 1.500, Best Reward: 6.10, Mean Reward -2.98
+2025/02/12 06:45:34: Episode 13600) Epsilon: 0.51, Reward: -7.500, Best Reward: 6.10, Mean Reward -3.34
+2025/02/12 06:45:37: Episode 13700) Epsilon: 0.50, Reward: -5.100, Best Reward: 6.10, Mean Reward -2.85
+2025/02/12 06:45:40: Episode 13800) Epsilon: 0.50, Reward: -5.700, Best Reward: 6.10, Mean Reward -2.74
+2025/02/12 06:45:43: Episode 13900) Epsilon: 0.50, Reward: -5.700, Best Reward: 6.10, Mean Reward -2.56
+2025/02/12 06:45:45: Episode 14000) Epsilon: 0.50, Reward: -1.500, Best Reward: 6.10, Mean Reward -3.18
+2025/02/12 06:45:48: Episode 14100) Epsilon: 0.49, Reward: 3.900, Best Reward: 6.10, Mean Reward -2.71
+2025/02/12 06:45:51: Episode 14200) Epsilon: 0.49, Reward: 3.900, Best Reward: 6.10, Mean Reward -2.38
+2025/02/12 06:45:54: Episode 14300) Epsilon: 0.49, Reward: -0.900, Best Reward: 6.10, Mean Reward -2.96
+2025/02/12 06:45:56: Episode 14400) Epsilon: 0.49, Reward: -4.500, Best Reward: 6.10, Mean Reward -2.01
+2025/02/12 06:45:59: Episode 14500) Epsilon: 0.48, Reward: -3.900, Best Reward: 6.10, Mean Reward -3.07
+2025/02/12 06:46:02: Episode 14600) Epsilon: 0.48, Reward: -4.500, Best Reward: 6.10, Mean Reward -2.27
+2025/02/12 06:46:05: Episode 14700) Epsilon: 0.48, Reward: 0.300, Best Reward: 6.10, Mean Reward -2.05
+2025/02/12 06:46:07: Episode 14800) Epsilon: 0.48, Reward: -0.300, Best Reward: 6.10, Mean Reward -2.03
+2025/02/12 06:46:10: Episode 14900) Epsilon: 0.47, Reward: -1.500, Best Reward: 6.10, Mean Reward -2.31
+2025/02/12 06:46:13: Episode 15000) Epsilon: 0.47, Reward: -5.100, Best Reward: 6.10, Mean Reward -2.50
+2025/02/12 06:46:16: Episode 15100) Epsilon: 0.47, Reward: -4.500, Best Reward: 6.10, Mean Reward -2.43
+2025/02/12 06:46:19: Episode 15200) Epsilon: 0.47, Reward: 0.300, Best Reward: 6.10, Mean Reward -1.91
+2025/02/12 06:46:21: Episode 15300) Epsilon: 0.47, Reward: 2.100, Best Reward: 6.10, Mean Reward -2.25
+2025/02/12 06:46:24: Episode 15400) Epsilon: 0.46, Reward: -3.900, Best Reward: 6.10, Mean Reward -2.57
+2025/02/12 06:46:27: Episode 15500) Epsilon: 0.46, Reward: -2.700, Best Reward: 6.10, Mean Reward -2.06
+2025/02/12 06:46:30: Episode 15600) Epsilon: 0.46, Reward: 3.900, Best Reward: 6.10, Mean Reward -1.12
+2025/02/12 06:46:32: Episode 15700) Epsilon: 0.46, Reward: -5.700, Best Reward: 6.10, Mean Reward -1.77
+2025/02/12 06:46:35: Episode 15800) Epsilon: 0.45, Reward: -3.300, Best Reward: 6.10, Mean Reward -1.91
+2025/02/12 06:46:38: Episode 15900) Epsilon: 0.45, Reward: -6.300, Best Reward: 6.10, Mean Reward -2.09
+2025/02/12 06:46:41: Episode 16000) Epsilon: 0.45, Reward: 3.900, Best Reward: 6.10, Mean Reward -1.76
+2025/02/12 06:46:44: Episode 16100) Epsilon: 0.45, Reward: -5.100, Best Reward: 6.10, Mean Reward -0.76
+2025/02/12 06:46:47: Episode 16200) Epsilon: 0.44, Reward: 3.900, Best Reward: 6.10, Mean Reward -1.36
+2025/02/12 06:46:50: Episode 16300) Epsilon: 0.44, Reward: -2.100, Best Reward: 6.10, Mean Reward -1.48
+2025/02/12 06:46:53: Episode 16400) Epsilon: 0.44, Reward: -5.100, Best Reward: 6.10, Mean Reward -0.85
+2025/02/12 06:46:56: Episode 16500) Epsilon: 0.44, Reward: 3.900, Best Reward: 6.10, Mean Reward -1.52
+2025/02/12 06:46:58: Episode 16600) Epsilon: 0.44, Reward: 3.900, Best Reward: 6.10, Mean Reward -1.13
+2025/02/12 06:47:01: Episode 16700) Epsilon: 0.43, Reward: -5.700, Best Reward: 6.10, Mean Reward -1.22
+2025/02/12 06:47:04: Episode 16800) Epsilon: 0.43, Reward: 0.300, Best Reward: 6.10, Mean Reward -0.79
+2025/02/12 06:47:07: Episode 16900) Epsilon: 0.43, Reward: -5.100, Best Reward: 6.10, Mean Reward -1.33
+2025/02/12 06:47:10: Episode 17000) Epsilon: 0.43, Reward: -4.500, Best Reward: 6.10, Mean Reward -1.50
+2025/02/12 06:47:13: Episode 17100) Epsilon: 0.43, Reward: 0.300, Best Reward: 6.10, Mean Reward -0.81
+2025/02/12 06:47:16: Episode 17200) Epsilon: 0.42, Reward: 2.100, Best Reward: 6.10, Mean Reward -1.44
+2025/02/12 06:47:18: Episode 17300) Epsilon: 0.42, Reward: 3.900, Best Reward: 6.10, Mean Reward -1.57
+2025/02/12 06:47:21: Episode 17400) Epsilon: 0.42, Reward: 3.900, Best Reward: 6.10, Mean Reward -1.18
+2025/02/12 06:47:22: Episode 17438) New Best Reward 6.30 (+3.3%), saving model...
+2025/02/12 06:47:24: Episode 17500) Epsilon: 0.42, Reward: -3.300, Best Reward: 6.30, Mean Reward -0.89
+2025/02/12 06:47:27: Episode 17595) New Best Reward 6.40 (+1.6%), saving model...
+2025/02/12 06:47:27: Episode 17600) Epsilon: 0.41, Reward: 0.300, Best Reward: 6.40, Mean Reward -0.29
+2025/02/12 06:47:29: Episode 17700) Epsilon: 0.41, Reward: -5.700, Best Reward: 6.40, Mean Reward -0.55
+2025/02/12 06:47:32: Episode 17800) Epsilon: 0.41, Reward: -6.300, Best Reward: 6.40, Mean Reward -0.48
+2025/02/12 06:47:35: Episode 17900) Epsilon: 0.41, Reward: 3.900, Best Reward: 6.40, Mean Reward -1.14
+2025/02/12 06:47:36: Episode 17950) New Best Reward 6.70 (+4.7%), saving model...
+2025/02/12 06:47:38: Episode 18000) Epsilon: 0.41, Reward: 3.900, Best Reward: 6.70, Mean Reward 0.06
+2025/02/12 06:47:42: Episode 18100) Epsilon: 0.40, Reward: 3.300, Best Reward: 6.70, Mean Reward -0.73
+2025/02/12 06:47:45: Episode 18200) Epsilon: 0.40, Reward: -2.700, Best Reward: 6.70, Mean Reward -0.41
+2025/02/12 06:47:47: Episode 18300) Epsilon: 0.40, Reward: -3.300, Best Reward: 6.70, Mean Reward -0.41
+2025/02/12 06:47:50: Episode 18400) Epsilon: 0.40, Reward: 3.900, Best Reward: 6.70, Mean Reward -0.70
+2025/02/12 06:47:53: Episode 18500) Epsilon: 0.40, Reward: -4.500, Best Reward: 6.70, Mean Reward -0.05
+2025/02/12 06:47:56: Episode 18600) Epsilon: 0.39, Reward: -3.900, Best Reward: 6.70, Mean Reward -0.90
+2025/02/12 06:47:59: Episode 18700) Epsilon: 0.39, Reward: -2.100, Best Reward: 6.70, Mean Reward -0.15
+2025/02/12 06:48:02: Episode 18800) Epsilon: 0.39, Reward: 3.900, Best Reward: 6.70, Mean Reward -0.18
+2025/02/12 06:48:05: Episode 18900) Epsilon: 0.39, Reward: 3.900, Best Reward: 6.70, Mean Reward -0.28
+2025/02/12 06:48:08: Episode 19000) Epsilon: 0.39, Reward: -6.900, Best Reward: 6.70, Mean Reward -0.15
+2025/02/12 06:48:11: Episode 19100) Epsilon: 0.38, Reward: 3.900, Best Reward: 6.70, Mean Reward -0.44
+2025/02/12 06:48:14: Episode 19200) Epsilon: 0.38, Reward: 3.900, Best Reward: 6.70, Mean Reward -0.46
+2025/02/12 06:48:17: Episode 19300) Epsilon: 0.38, Reward: -3.300, Best Reward: 6.70, Mean Reward 0.47
+2025/02/12 06:48:20: Episode 19400) Epsilon: 0.38, Reward: 4.200, Best Reward: 6.70, Mean Reward -0.05
+2025/02/12 06:48:22: Episode 19481) New Best Reward 8.40 (+25.4%), saving model...
+2025/02/12 06:48:23: Episode 19500) Epsilon: 0.38, Reward: 3.300, Best Reward: 8.40, Mean Reward 0.87
+2025/02/12 06:48:23: Episode 19509) New Best Reward 8.60 (+2.4%), saving model...
+2025/02/12 06:48:26: Episode 19600) Epsilon: 0.38, Reward: 3.300, Best Reward: 8.60, Mean Reward -0.47
+2025/02/12 06:48:29: Episode 19700) Epsilon: 0.37, Reward: 3.900, Best Reward: 8.60, Mean Reward 0.32
+2025/02/12 06:48:31: Episode 19800) Epsilon: 0.37, Reward: -2.100, Best Reward: 8.60, Mean Reward -0.16
+2025/02/12 06:48:34: Episode 19900) Epsilon: 0.37, Reward: -2.100, Best Reward: 8.60, Mean Reward 0.12
+2025/02/12 06:48:38: Episode 20000) Epsilon: 0.37, Reward: 2.700, Best Reward: 8.60, Mean Reward -0.01
+2025/02/12 06:48:41: Episode 20100) Epsilon: 0.37, Reward: 3.900, Best Reward: 8.60, Mean Reward -0.11
+2025/02/12 06:48:44: Episode 20200) Epsilon: 0.36, Reward: -5.100, Best Reward: 8.60, Mean Reward 0.02
+2025/02/12 06:48:47: Episode 20300) Epsilon: 0.36, Reward: -5.100, Best Reward: 8.60, Mean Reward 0.21
+2025/02/12 06:48:49: Episode 20400) Epsilon: 0.36, Reward: 1.500, Best Reward: 8.60, Mean Reward 0.84
+2025/02/12 06:48:52: Episode 20500) Epsilon: 0.36, Reward: -3.300, Best Reward: 8.60, Mean Reward 0.61
+2025/02/12 06:48:56: Episode 20600) Epsilon: 0.36, Reward: -4.500, Best Reward: 8.60, Mean Reward 0.21
+2025/02/12 06:48:59: Episode 20700) Epsilon: 0.36, Reward: -2.700, Best Reward: 8.60, Mean Reward -0.19
+2025/02/12 06:49:01: Episode 20800) Epsilon: 0.35, Reward: 3.900, Best Reward: 8.60, Mean Reward 0.53
+2025/02/12 06:49:04: Episode 20900) Epsilon: 0.35, Reward: 3.900, Best Reward: 8.60, Mean Reward 0.83
+2025/02/12 06:49:08: Episode 21000) Epsilon: 0.35, Reward: -2.100, Best Reward: 8.60, Mean Reward 0.63
+2025/02/12 06:49:11: Episode 21100) Epsilon: 0.35, Reward: 2.700, Best Reward: 8.60, Mean Reward 1.14
