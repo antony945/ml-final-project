@@ -36,7 +36,7 @@ def test(hyperparameters: dict, n_episodes, show_render = True):
     env.close()
     return
 
-def run(hyperparameters: dict, n_episodes, dqn = False, is_training = False, show_plots = False, show_render = False, verbose = False, record_video = False):
+def run(hyperparameters: dict, n_episodes, dqn = False, is_training = False, show_plots = False, show_render = False, verbose = False, record_video = False, seed = None):
     # Initialise the environment
     env = gym.make(**hyperparameters['env_args'], render_mode="rgb_array" if not show_render else "human") # or "none"
     # env.metadata['render_fps'] = 120
@@ -61,14 +61,12 @@ def run(hyperparameters: dict, n_episodes, dqn = False, is_training = False, sho
         agent = Q_Agent(
             env,
             hyperparameters,
-            is_training=is_training,
         )
     
-    agent.run(n_episodes, is_training, show_plots, verbose, seed=None)
+    agent.run(n_episodes, is_training, show_plots, verbose, seed=seed)
     return agent
 
-def main(hyperparameter_set):
-
+def main(hyperparameter_set: str):
     # Load hyperparameters set
     with open('hyperparameters.yml', 'r') as file:
         all_hyperparameter_sets = yaml.safe_load(file)
@@ -77,16 +75,17 @@ def main(hyperparameter_set):
     # TEST
     # test(hyperparameters, 3, show_render=True)
 
-    DQN = True
+    seed = hyperparameters.get('seed', None)
+    DQN = hyperparameters.get('dqn', True)
 
     # TRAINING
-    run(hyperparameters, hyperparameters['n_episodes'], dqn=DQN, is_training=True, show_plots=True, show_render=False, verbose=True, record_video=False)
+    run(hyperparameters, hyperparameters.get('n_episodes', None), dqn=DQN, is_training=True, show_plots=True, show_render=False, verbose=True, record_video=False, seed=seed)
 
     # RUN
-    run(hyperparameters, 1000, dqn=DQN, is_training=False, show_plots=True, show_render=False, verbose=False, record_video=False)
+    run(hyperparameters, 1000, dqn=DQN, is_training=False, show_plots=True, show_render=False, verbose=False, record_video=False, seed=seed)
 
     # RENDER
-    run(hyperparameters, 5, dqn=DQN, is_training=False, show_plots=False, show_render=True, verbose=False, record_video=False)
+    run(hyperparameters, 5, dqn=DQN, is_training=False, show_plots=False, show_render=True, verbose=False, record_video=False, seed=seed)
 
 if __name__ == '__main__':
     hyperparameter_set = "flappybird"

@@ -4,6 +4,7 @@ from collections import defaultdict
 import pickle
 from matplotlib import pyplot as plt
 import os
+import re
 import abc
 import torch
 from torch import nn
@@ -42,7 +43,6 @@ class Agent:
     def initialize(self,
         env: gym.Env,
         hyperparameters: dict,
-        discount_factor: float = 0.95
     ):
         # Initialize agent
         self.env = env
@@ -54,20 +54,24 @@ class Agent:
             if k != "render_mode":
                 self.env_fullname += f"_{v}"
 
+        # Create model filename
+        self.filename = f"{self.env_fullname}"
+
         # Create logfile
         self.logfile = os.path.join(Agent.LOGS_DIRECTORY, f"{self.env_fullname}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.log")
 
         # Initialize hyperparameters
         self.hyperparameters = hyperparameters
-        self.learning_rate =    self.hyperparameters['learning_rate']
-        self.epsilon =          self.hyperparameters['epsilon_init']
-        self.epsilon_decay =    self.hyperparameters['epsilon_decay']
-        self.final_epsilon =    self.hyperparameters['epsilon_min']
-        self.discount_factor =  discount_factor
+        self.learning_rate =    self.hyperparameters.get('learning_rate', 0.001)
+        self.epsilon =          self.hyperparameters.get('epsilon_init', 1)
+        self.epsilon_decay =    self.hyperparameters.get('epsilon_decay', 0.99995)
+        self.final_epsilon =    self.hyperparameters.get('epsilon_min', 0.05)
+        self.discount_factor =  self.hyperparameters.get('discount_factor', None)
+        self.stop_on_reward =   self.hyperparameters.get('stop_on_reward', None)
 
     def decay_epsilon(self, is_training):
-        # Linear decay
-        self.epsilon = max(self.final_epsilon, self.epsilon*self.epsilon_decay)
+        if is_training:
+            self.epsilon = max(self.final_epsilon, self.epsilon*self.epsilon_decay)
 
     def plot_results(self, mean_rewards, epsilon_values, training = False, show = True, integrated = False):
         if (integrated):
@@ -129,6 +133,46 @@ class Agent:
             plt.tight_layout()
             plt.show()
 
+    def get_largest_model_name(self, filename: str, extension: str, n_episodes: int | None = None):
+        if n_episodes is not None:
+            return os.path.join(Agent.MODELS_DIRECTORY, f"{filename}_{n_episodes}.{extension}")
+        else:
+            # Get the list of all files that match the base filename pattern
+            pattern = rf"{filename}_(\d+)\.{extension}"
+            files = [f for f in os.listdir(Agent.MODELS_DIRECTORY) if re.match(pattern, f)]
+            
+            # Find the largest episode number
+            largest_episode = -1
+            largest_model = None
+            for file in files:
+                match = re.search(pattern, file)
+                if match:
+                    episode_number = int(match.group(1))
+                    if episode_number > largest_episode:
+                        largest_episode = episode_number
+                        largest_model = file
+
+            # TODO: Handle case when largest model is still None            
+            return os.path.join(Agent.MODELS_DIRECTORY, largest_model)
+
+    def create_new_model_name(self, filename: str, extension: str, n_episodes: int | None):
+        model_name = filename
+        model_name += "_temp" if n_episodes is None else f"_{n_episodes}"
+        model_name += f".{extension}"
+        return os.path.join(Agent.MODELS_DIRECTORY, model_name)
+
+    def log_hyperparameters(self, hyperparameters: dict):
+        log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: HYPERPARAMETERS"
+        print(log_msg)
+        with open(self.logfile, 'w') as file:
+            file.write(log_msg + "\n")
+
+        for k,v in hyperparameters.items():
+            log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: {k} = {v}"
+            print(log_msg)
+            with open(self.logfile, 'a') as file:
+                file.write(log_msg + "\n")
+
     @abc.abstractmethod
     def get_action(self, obs, is_training=True) -> int:
         raise NotImplementedError
@@ -145,17 +189,23 @@ class Agent:
         raise NotImplementedError
     
     @abc.abstractmethod
-    def save_model(self):
+    def load_model(self, n_episodes: int | None = None):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def save_model(self, n_episodes: int | None):
         raise NotImplementedError
 
     @abc.abstractmethod
     def run(self, n_episodes: int | None, is_training = True, show_plots = True, verbose = True, seed = None):
         # Initialize log file
         if is_training:
+            self.log_hyperparameters(self.hyperparameters)
+
             start_time = datetime.now()
-            log_msg = f"{start_time.strftime(Agent.TIME_FORMAT)}: Training starting..."
+            log_msg = f"{start_time.strftime(Agent.TIME_FORMAT)}: STARTED TRAINING"
             print(log_msg)
-            with open(self.logfile, 'w') as file:
+            with open(self.logfile, 'a') as file:
                 file.write(log_msg + "\n")
 
         # Reset environment
@@ -201,22 +251,26 @@ class Agent:
                     obs = next_obs
                     rewards += reward
 
+                rewards_per_episode.append(rewards)
+                mean_reward = np.mean(rewards_per_episode[len(rewards_per_episode)-100:])
+                mean_rewards.append(mean_reward)
+                epsilon_values.append(self.epsilon)
+
                 # At the end of episode handle rewards      
                 if is_training and rewards > best_reward:
-                    log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: Episode {episode}) New Best Reward {rewards:.2f} ({((rewards-best_reward)/abs(best_reward)*100):+.1f}%), saving model..."
+                    log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: Episode {episode}) New Best Reward {rewards:.2f} ({((rewards-best_reward)/abs(best_reward)*100):+.1f}%)"
                     if verbose:
                         print(log_msg)
                     with open(self.logfile, 'a') as file:
                         file.write(log_msg + "\n")
                     
-                    # Save also model
-                    self.save_model()
+                    # Save also model but without specifying n_episodes (so it will override everytime)
+                    self.save_model(n_episodes = None)
                     best_reward = rewards
-                
-                rewards_per_episode.append(rewards)
-                mean_reward = np.mean(rewards_per_episode[len(rewards_per_episode)-100:])
-                mean_rewards.append(mean_reward)
-                epsilon_values.append(self.epsilon)
+
+                    # Exit loop on a particular reward
+                    if self.stop_on_reward is not None and best_reward >= self.stop_on_reward: 
+                        break
 
                 # Debug every 100 episodes
                 if is_training and episode%100==0:
@@ -234,15 +288,22 @@ class Agent:
 
                 # Decay epsilon
                 self.decay_epsilon(is_training)
+
         except KeyboardInterrupt:
             print("\nCTRL+C pressed.\n")
         finally:
             # Close the env
             self.env.close()
 
-        # Save on file
+        # Save model on file specifying also n_iterations
         if is_training:
-            self.save_model()
+            end_time = datetime.now()
+            log_msg = f"{end_time.strftime(Agent.TIME_FORMAT)}: ENDED TRAINING. Training took {str(end_time-start_time).split('.')[0]}"
+            print(log_msg)
+            with open(self.logfile, 'a') as file:
+                file.write(log_msg + "\n")
+
+            self.save_model(n_episodes=len(mean_rewards))
 
         # Display plots
         if show_plots:
@@ -258,10 +319,11 @@ class Q_Agent(Agent):
     exploration-exploitation strategy to balance learning and performance.
     """
 
+    MODEL_EXTENSION = "pk1"
+
     def __init__(self,
         env: gym.Env,
         hyperparameters: dict,
-        is_training: bool = True,
     ):
         super().initialize(env, hyperparameters)
         self.training_error = []
@@ -279,25 +341,8 @@ class Q_Agent(Agent):
         else:
             self._handle_box_space(self.env.observation_space, self.obs_spaces, self.divisions)
 
-        # Create q_table or load it from a file if specified
+        # Used for stored q_table
         self.q_table = None
-
-        # Create filename
-        self.filename = os.path.join(Agent.MODELS_DIRECTORY, f"{self.env_fullname}.pk1")
-
-        # Load from model if is not training
-        if not is_training:
-            with open(self.filename, "rb") as f:
-                # Load dict table
-                self.q_table = pickle.load(f)
-            
-        if self.q_table is not None:
-            # Transform dict table into default dict
-            self.q_table = defaultdict(self._create_numpy_entry, self.q_table) # can't use lambda due to pickle not able to "pickle" an anon function
-        else:
-            # Create new default dict
-            # self.q_table = defaultdict(lambda: np.zeros(env.action_space.n))
-            self.q_table = defaultdict(self._create_numpy_entry) # can't use lambda due to pickle not able to "pickle" an anon function
 
     def _handle_box_space(self, obs_space: gym.spaces.Box, obs_spaces: list, divisions = 10):
         # Flatten the box
@@ -362,14 +407,41 @@ class Q_Agent(Agent):
 
         self.training_error.append(temporal_difference)
 
-    def save_model(self):
-        print(f"MAX Q_TABLE SIZE: {self.obs_spaces_size} x {self.env.action_space.n}")
-        print(f"ACTUAL Q_TABLE SIZE: {len(self.q_table)} x {self.env.action_space.n}")
+    def load_model(self, n_episodes: int | None = None):
+        model_name = self.get_largest_model_name(self.filename, Q_Agent.MODEL_EXTENSION, n_episodes)
+        print(f"Loading Q-Table from: '{model_name}'..")
 
-        with open(self.filename, "wb") as f:
+        with open(model_name, "rb") as f:
+            # Load dict table
+            self.q_table = pickle.load(f)
+
+        print(f"Q-Table size: {len(self.q_table)} x {self.env.action_space.n} (instead of {self.obs_spaces_size} x {self.env.action_space.n})")
+
+    def save_model(self, n_episodes: int | None):
+        model_name = self.create_new_model_name(self.filename, Q_Agent.MODEL_EXTENSION, n_episodes)
+
+        # Print only when saving non-temprary models
+        if n_episodes is not None:
+            print(f"Saving Q-Table to: '{model_name}'..")
+            print(f"Q-Table size: {len(self.q_table)} x {self.env.action_space.n}")
+
+        with open(model_name, "wb") as f:
             pickle.dump(dict(self.q_table), f)
 
     def run(self, n_episodes: int | None, is_training = True, show_plots = True, verbose = True, seed = None):
+        # Load from model if is not training
+        if not is_training:
+            self.load_model(n_episodes=None)
+            
+        if self.q_table is not None:
+            # Transform dict table into default dict
+            self.q_table = defaultdict(self._create_numpy_entry, self.q_table) # can't use lambda due to pickle not able to "pickle" an anon function
+        else:
+            # Create new default dict
+            # self.q_table = defaultdict(lambda: np.zeros(env.action_space.n))
+            self.q_table = defaultdict(self._create_numpy_entry) # can't use lambda due to pickle not able to "pickle" an anon function
+
+
         super().run(n_episodes, is_training, show_plots, verbose, seed)
 
 class DQN(nn.Module):
@@ -398,19 +470,19 @@ class DQN_Agent(Agent):
     improving over time with experience replay and target networks.
     """
 
+    MODEL_EXTENSION = "pt"
+
     def __init__(self,
         env: gym.Env,
         hyperparameters: dict,
-        hidden_dim = 256
     ):
         # Agent initialize method
         super().initialize(env, hyperparameters)
-        # Create filename
-        self.filename = os.path.join(Agent.MODELS_DIRECTORY, f"{self.env_fullname}.pt")
 
-        self.replay_memory_size =   self.hyperparameters['replay_memory_size']
-        self.mini_batch_size =      self.hyperparameters['mini_batch_size']
-        self.network_sync_rate =    self.hyperparameters['network_sync_rate']
+        self.replay_memory_size =   self.hyperparameters.get('replay_memory_size', 100_000)
+        self.mini_batch_size =      self.hyperparameters.get('mini_batch_size', 32)
+        self.network_sync_rate =    self.hyperparameters.get('network_sync_rate', 10)
+        self.hidden_dim =           self.hyperparameters.get('fc1_nodes', 128)
 
         # NN loss function, MSE = Mean Squared Error
         self.loss_fn = nn.MSELoss()
@@ -420,7 +492,6 @@ class DQN_Agent(Agent):
         # Create DQN
         self.state_dim = self.env.observation_space.shape[0]
         self.action_dim = self.env.action_space.n
-        self.hidden_dim = hidden_dim
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.policy_dqn = DQN(self.state_dim, self.action_dim, self.hidden_dim).to(self.device)
         print(self.policy_dqn)
@@ -518,8 +589,18 @@ class DQN_Agent(Agent):
             self.memory.append((obs, action, reward, terminated, next_obs))
             self.step_count += 1
     
-    def save_model(self):
-        torch.save(self.policy_dqn.state_dict(), self.filename)
+    def load_model(self, n_episodes: int | None = None):
+        model_name = self.get_largest_model_name(self.filename, DQN_Agent.MODEL_EXTENSION, n_episodes)
+        print(f"Loading DQN from: '{model_name}'..")
+        self.policy_dqn.load_state_dict(torch.load(model_name))
+
+    def save_model(self, n_episodes: int | None):
+        model_name = self.create_new_model_name(self.filename, DQN_Agent.MODEL_EXTENSION, n_episodes)
+
+        # Print only when saving non-temprary models
+        if n_episodes is not None:
+            print(f"Saving DQN to: '{model_name}'..")
+        torch.save(self.policy_dqn.state_dict(), model_name)
 
     def run(self, n_episodes: int | None, is_training = True, show_plots = True, verbose = True, seed = None):
         # If is training create the deque for experience replay
@@ -539,7 +620,7 @@ class DQN_Agent(Agent):
             self.optimizer = torch.optim.Adam(self.policy_dqn.parameters(), lr=self.learning_rate)
         else:
             # Load learned policy
-            self.policy_dqn.load_state_dict(torch.load(self.filename))
+            self.load_model(None)
 
             # Switch model to evaluation mode
             self.policy_dqn.eval()
