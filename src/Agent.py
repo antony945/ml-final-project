@@ -14,6 +14,7 @@ from tqdm import tqdm
 import itertools
 import yaml
 from datetime import datetime
+import time
 
 class Agent:
     """
@@ -62,16 +63,27 @@ class Agent:
 
         # Initialize hyperparameters
         self.hyperparameters = hyperparameters
-        self.learning_rate =    self.hyperparameters.get('learning_rate', 0.001)
-        self.epsilon =          self.hyperparameters.get('epsilon_init', 1)
-        self.epsilon_decay =    self.hyperparameters.get('epsilon_decay', 0.99995)
-        self.final_epsilon =    self.hyperparameters.get('epsilon_min', 0.05)
-        self.discount_factor =  self.hyperparameters.get('discount_factor', None)
-        self.stop_on_reward =   self.hyperparameters.get('stop_on_reward', None)
+        self.learning_rate =        self.hyperparameters.get('learning_rate', 0.001)
+        self.epsilon =              self.hyperparameters.get('epsilon_init', 1)
+        self.epsilon_decay =        self.hyperparameters.get('epsilon_decay', 0.99995)
+        self.final_epsilon =        self.hyperparameters.get('epsilon_min', 0.05)
+        self.discount_factor =      self.hyperparameters.get('discount_factor', None)
+        self.stop_on_reward =       self.hyperparameters.get('stop_on_reward', None)
+        self.enable_memory =        self.hyperparameters.get('enable_memory', True)
+        self.mini_batch_size =      self.hyperparameters.get('mini_batch_size', 64)
+        self.min_memory_size =      self.hyperparameters.get('min_memory_size', 1_000)
+        self.max_memory_size =      self.hyperparameters.get('max_memory_size', 100_000)
+        self.lazy_update =          self.hyperparameters.get('lazy_update', False)
 
     def decay_epsilon(self, is_training):
         if is_training:
             self.epsilon = max(self.final_epsilon, self.epsilon*self.epsilon_decay)
+
+            # Peform update at the end of episode, during epsilon decay
+            if self.lazy_update:
+                mini_batch = self.sample_memory()
+                if mini_batch is not None:
+                    self.optimize(mini_batch)
 
     def get_largest_model_name(self, filename: str, extension: str, n_episodes: int | None = None):
         if n_episodes is not None:
@@ -161,7 +173,7 @@ class Agent:
         labels = [line.get_label() for line in lines]
         ax1.legend(lines, labels, loc="best")  # Single legend in the best position
 
-        title = f"N={len(mean_rewards)}, LR={self.learning_rate}, DF={self.discount_factor}"
+        title = f"N={len(mean_rewards)}, LR={self.learning_rate}, DECAY={self.epsilon_decay}, DF={self.discount_factor}, BATCH={self.mini_batch_size}"
         for k,v in additional_parameters.items():
             title += f", {k}={v}"
 
@@ -171,9 +183,15 @@ class Agent:
         n_episodes = f"{len(mean_rewards)}" if show is True else "temp"
 
         if training:
-            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_basename}_{agent_type}_training_{n_episodes}.png")
+            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_basename}_{agent_type}_training")
         else:
-            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_basename}_{agent_type}_test_{n_episodes}.png")
+            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_basename}_{agent_type}_test")
+
+        filename += f"_{n_episodes}_{self.learning_rate}_{self.discount_factor}_{self.mini_batch_size}"
+        for k,v in additional_parameters.items():
+            filename += f"_{k}-{v}"
+
+        filename += ".png"
 
         plt.savefig(filename)
         if show:
@@ -181,6 +199,15 @@ class Agent:
             plt.show()
         else:
             plt.close(fig)
+
+    def sample_memory(self):
+        # Check if we collected enough experience, if not don't update
+        if len(self.memory) <= self.min_memory_size: return None
+
+        # If so, sample batch size from memory to reduce correlation between consecutive experiences 
+        mini_batch = self.memory.sample(self.mini_batch_size)
+
+        return mini_batch
 
     @abc.abstractmethod
     def get_action(self, obs, is_training=True) -> int:
@@ -193,10 +220,31 @@ class Agent:
         reward: float,
         terminated: bool,
         next_obs,
-        is_training=True
+        is_training=True,
     ):
-        raise NotImplementedError
+        if not is_training: return None
+
+        # Current observation
+        current_row = (obs, action, reward, terminated, next_obs)
+        
+        # Depending on memory enabled or not, handle the update
+        if self.enable_memory:
+            # Append memory
+            self.memory.append(current_row)
+
+            # If lazy_update (update after every episode, not every step), stop here
+            if self.lazy_update: return None
+
+            # Otherwise check if sampling from memory is possible
+            return self.sample_memory()
+        else:
+            # If experience replay not enabled, process just current observation
+            return current_row
     
+    @abc.abstractmethod
+    def optimize(self, minibatch):
+        raise NotImplementedError
+
     @abc.abstractmethod
     def load_model(self, n_episodes: int | None = None):
         raise NotImplementedError
@@ -207,10 +255,14 @@ class Agent:
 
     @abc.abstractmethod
     def run(self, n_episodes: int | None, is_training = True, show_plots = True, verbose = True, seed = None):
-        # Initialize log file
         if is_training:
+            # Handle experience replay if enabled    
+            if self.enable_memory:
+                # Create the deque for experience replay
+                self.memory = ReplayMemory(self.max_memory_size, seed)
+            
+            # Initialize log file
             self.log_hyperparameters(self.hyperparameters)
-
             start_time = datetime.now()
             log_msg = f"{start_time.strftime(Agent.TIME_FORMAT)}: STARTED TRAINING"
             print(log_msg)
@@ -222,11 +274,15 @@ class Agent:
 
         # Track rewards during episodes
         rewards_per_episode = []
-        mean_rewards = []
+        avg_rewards = []
         best_reward = -999999
 
         # Track epsilon values during episodes
         epsilon_values = []
+
+        # Track frames (no. of steps) during episodes
+        frames_per_episode = []
+        avg_frames = []
 
         if n_episodes is not None:
             # Fixed number of episodes
@@ -244,6 +300,7 @@ class Agent:
                 rewards = 0
 
                 # Play one episode
+                frames = 0
                 while not done:
                     # Choose action
                     action = self.get_action(obs, is_training=is_training)                    
@@ -259,15 +316,20 @@ class Agent:
                     done = terminated or truncated
                     obs = next_obs
                     rewards += reward
+                    frames += 1
 
                 rewards_per_episode.append(rewards)
-                mean_reward = np.mean(rewards_per_episode[len(rewards_per_episode)-100:])
-                mean_rewards.append(mean_reward)
+                avg_reward = np.mean(rewards_per_episode[len(rewards_per_episode)-100:])
+                avg_rewards.append(avg_reward)
                 epsilon_values.append(self.epsilon)
+                
+                frames_per_episode.append(frames)
+                avg_frame = np.mean(frames_per_episode[len(frames_per_episode)-100:])
+                avg_frames.append(avg_frame)
 
                 # At the end of episode handle rewards      
                 if is_training and rewards > best_reward:
-                    log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: Episode {episode}) New Best Reward {rewards:.2f} ({((rewards-best_reward)/abs(best_reward)*100):+.1f}%)"
+                    log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: Episode {episode}), Steps: {frames}, New Best Reward {rewards:.2f} ({((rewards-best_reward)/abs(best_reward)*100):+.1f}%)"
                     if verbose:
                         print(log_msg)
                     with open(self.logfile, 'a') as file:
@@ -283,7 +345,7 @@ class Agent:
 
                 # Debug every 100 episodes
                 if is_training and episode%100==0:
-                    log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: Episode {episode}) Epsilon: {self.epsilon:0.2f}, Reward: {rewards:.3f}, Best Reward: {best_reward:.2f}, Mean Reward {mean_reward:.2f}"
+                    log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: Episode {episode}) Epsilon: {self.epsilon:0.2f}, Mean Steps: {avg_frame}, Reward: {rewards:.3f}, Best Reward: {best_reward:.2f}, Mean Reward {avg_reward:.2f}"
                     with open(self.logfile, 'a') as file:
                         file.write(log_msg + "\n")
 
@@ -292,7 +354,7 @@ class Agent:
                     
                 # Save graph every 1000 episodes
                 if is_training and episode%1000==0:
-                    self.plot_results(mean_rewards, epsilon_values, training=is_training, show=False, integrated=False)
+                    self.plot_results(avg_rewards, epsilon_values, training=is_training, show=False, integrated=False)
 
                 # Decay epsilon
                 self.decay_epsilon(is_training)
@@ -311,12 +373,12 @@ class Agent:
             with open(self.logfile, 'a') as file:
                 file.write(log_msg + "\n")
 
-            self.save_model(n_episodes=len(mean_rewards))
+            self.save_model(n_episodes=len(avg_rewards))
 
         # Display plots
         if show_plots:
             epsilon_values = None if not is_training else epsilon_values
-            self.plot_results(mean_rewards, epsilon_values, training=is_training, integrated=False)
+            self.plot_results(avg_rewards, epsilon_values, training=is_training, integrated=False)
 
     @abc.abstractmethod
     def plot_results(self, mean_rewards, epsilon_values, training = False, show = True, integrated = False):
@@ -338,6 +400,7 @@ class Q_Agent(Agent):
         hyperparameters: dict,
     ):
         super().initialize(env, hyperparameters)
+        self.in_batch = True
 
         # For deciding how to discretize continuous observations
         self.divisions = self.hyperparameters.get("divisions", 5)
@@ -413,23 +476,48 @@ class Q_Agent(Agent):
         obs = self._discretize_obs(obs)
         next_obs = self._discretize_obs(next_obs)
 
-        # Update Q-table after having performed action
-        future_q_value = (not terminated) * np.max(self.q_table[next_obs])
-        current_q_value = self.q_table[obs][action]
-        temporal_difference = reward + self.discount_factor * future_q_value - current_q_value
-        self.q_table[obs][action] += self.learning_rate * temporal_difference
+        # Call parent update to get mini batch to process
+        mini_batch = super().update(obs, action, reward, terminated, next_obs, is_training)
+        if mini_batch is None or self.lazy_update: return
 
-        self.training_error.append(temporal_difference)
+        # Update Q-table after having performed action
+        self.optimize(mini_batch)
+
+    def optimize(self, mini_batch):
+        # Process mini batch all at once to reduce time
+        observations, actions, rewards, terminations, next_observations = zip(*mini_batch)
+
+        # Convert tuples to NumPy arrays where possible for efficient batch operations (q_table as defaultdict will not accept numpy array as keys)
+        actions = np.array(actions)
+        rewards = np.array(rewards)
+        terminations = np.array(terminations, dtype=int)
+
+        # Compute max Q-values for next states (set to 0 if terminated)
+        future_q_values = (1-terminations) * np.array([max(self.q_table[next_obs]) for next_obs in next_observations])
+
+        # Compute target Q-values
+        q_targets = rewards + self.discount_factor * future_q_values
+
+        # Compute temporal differences
+        current_q_values = np.array([self.q_table[obs][action] for obs, action in zip(observations, actions)])
+        td_errors = q_targets - current_q_values
+
+        # Update Q-table using NumPy arrays (vectorized update)
+        updates = self.learning_rate * td_errors
+        for obs, action, update in zip(observations, actions, updates):
+            self.q_table[obs][action] += update
+
+        # Store training errors
+        self.training_error.extend(td_errors)
 
     def load_model(self, n_episodes: int | None = None):
         model_name = self.get_largest_model_name(self.filename, Q_Agent.MODEL_EXTENSION, n_episodes)
         print(f"Loading Q-Table from: '{model_name}'..")
 
         with open(model_name, "rb") as f:
+            # TODO: Check problem here or in load model. I think that the loaded dict is not the one I have saved
             # Load dict table
             self.q_table = pickle.load(f)
-
-        print(f"Q-Table size: {len(self.q_table)} x {self.env.action_space.n} (instead of {self.obs_spaces_size} x {self.env.action_space.n})")
 
     def save_model(self, n_episodes: int | None):
         model_name = self.create_new_model_name(self.filename, Q_Agent.MODEL_EXTENSION, n_episodes)
@@ -440,6 +528,7 @@ class Q_Agent(Agent):
             print(f"Q-Table size: {len(self.q_table)} x {self.env.action_space.n}")
 
         with open(model_name, "wb") as f:
+            # TODO: Check problem here or in load model. I think that the loaded dict is not the one I have saved
             pickle.dump(dict(self.q_table), f)
 
     def run(self, n_episodes: int | None, is_training = True, show_plots = True, verbose = True, seed = None):
@@ -450,11 +539,11 @@ class Q_Agent(Agent):
         if self.q_table is not None:
             # Transform dict table into default dict
             self.q_table = defaultdict(self._create_numpy_entry, self.q_table) # can't use lambda due to pickle not able to "pickle" an anon function
+            print(f"Q-Table size: {len(self.q_table)} x {self.env.action_space.n} (instead of {self.obs_spaces_size} x {self.env.action_space.n})")
         else:
             # Create new default dict
             # self.q_table = defaultdict(lambda: np.zeros(env.action_space.n))
             self.q_table = defaultdict(self._create_numpy_entry) # can't use lambda due to pickle not able to "pickle" an anon function
-
 
         super().run(n_episodes, is_training, show_plots, verbose, seed)
 
@@ -499,8 +588,6 @@ class DQN_Agent(Agent):
         # Agent initialize method
         super().initialize(env, hyperparameters)
 
-        self.replay_memory_size =   self.hyperparameters.get('replay_memory_size', 100_000)
-        self.mini_batch_size =      self.hyperparameters.get('mini_batch_size', 32)
         self.network_sync_rate =    self.hyperparameters.get('network_sync_rate', 10)
         self.hidden_dim =           self.hyperparameters.get('fc1_nodes', 128)
 
@@ -516,63 +603,7 @@ class DQN_Agent(Agent):
         self.policy_dqn = DQN(self.state_dim, self.action_dim, self.hidden_dim).to(self.device)
         print(self.policy_dqn)
 
-    def _optimize(self, mini_batch, policy_dqn, target_dqn):
-        # Process mini batch all at once to reduce time
-        observations, actions, rewards, terminations, next_observations = zip(*mini_batch)
-
-        # Stack tensors to create batch tensors, tensor([[1,2,3,..]])
-        observations = torch.stack(observations)
-        actions = torch.stack(actions)
-        rewards = torch.stack(rewards)
-        next_observations = torch.stack(next_observations)
-        # Convert true/false in 1.0/0.0
-        terminations = torch.tensor(terminations).float().to(self.device)
-
-        with torch.no_grad():
-            # Calculate target q values (expected returns)
-            target_q = rewards + (1-terminations) * self.discount_factor * target_dqn(next_observations).max(dim=1)[0]
-            '''
-                target_dqn(next_observations)   --> tensor([[.2, .8], [.3, .6], [.1, .4]])
-                    .max(dim=1)                 --> torch.return_types.max(values=tensor([.8,.6,.4]), indices=tensor([1,1,1]))
-                        [0]                     --> tensor([.8,.6,.4])
-            '''
-
-        # Calculate q values from current policy (use actions done as index in the tensors)
-        current_q = policy_dqn(observations).gather(dim=1, index=actions.unsqueeze(dim=1)).squeeze()
-        '''
-            Supposing we have actions = tensor([1, 0, 1])
-
-            policy_dqn(observations)                            --> tensor([[.2, .8], [.3, .6], [.1, .4]])
-                .gather(dim=1, index=actions.unsqueeze(dim=1))  --> tensor([[.8], [.3], [.4]]) values correspondent to actions
-                    .squeeze()                                  --> tensor([.8, .3, .4])
-        '''
-
-        # Compute loss for the whole mini batch
-        loss = self.loss_fn(current_q, target_q)
-
-        # Optimize the model
-        self.optimizer.zero_grad()  # Clear gradients
-        loss.backward()             # Compute gradients (backpropagation)
-        self.optimizer.step()       # Update network parameters (weight and biases)
-
     # ==================================== Superclass methods
-
-    def decay_epsilon(self, is_training):
-        super().decay_epsilon(is_training)
-    
-        # Also update experience
-        # If we collected enough experience
-        if is_training and len(self.memory) > self.mini_batch_size:
-            # Sample from memory
-            mini_batch = self.memory.sample(self.mini_batch_size)
-
-            # Optimize target and policy dqn
-            self._optimize(mini_batch, self.policy_dqn, self.target_dqn)
-
-            # Copy policy network to target network after a certain number of steps
-            if self.step_count > self.network_sync_rate:
-                self.target_dqn.load_state_dict(self.policy_dqn.state_dict())
-                self.step_count = 0
 
     def get_action(self, obs, is_training=True) -> int:
         if is_training and np.random.random() < self.epsilon:
@@ -594,7 +625,7 @@ class DQN_Agent(Agent):
         reward: float,
         terminated: bool,
         next_obs,
-        is_training = True
+        is_training = True,
     ):
         if not is_training: return
 
@@ -604,10 +635,59 @@ class DQN_Agent(Agent):
         reward = torch.tensor(reward, dtype=torch.float, device=self.device)
         next_obs = torch.tensor(next_obs, dtype=torch.float, device=self.device)
         
-        # Append memory if during training
-        if is_training:
-            self.memory.append((obs, action, reward, terminated, next_obs))
-            self.step_count += 1
+        # Call parent update to get mini batch to process
+        mini_batch = super().update(obs, action, reward, terminated, next_obs, is_training)
+        if mini_batch is None or self.lazy_update: return
+
+        # Optimize target and policy dqn
+        self.optimize(mini_batch)
+
+    def optimize(self, mini_batch):
+        # Process mini batch all at once to reduce time
+        observations, actions, rewards, terminations, next_observations = zip(*mini_batch)
+
+        # Stack tensors to create batch tensors, tensor([[1,2,3,..]])
+        observations = torch.stack(observations)
+        actions = torch.stack(actions)
+        rewards = torch.stack(rewards)
+        next_observations = torch.stack(next_observations)
+        # Convert true/false in 1.0/0.0
+        terminations = torch.tensor(terminations).float().to(self.device)
+
+        with torch.no_grad():
+            # Calculate target q values (expected returns)
+            target_q = rewards + (1-terminations) * self.discount_factor * self.target_dqn(next_observations).max(dim=1)[0]
+            '''
+                target_dqn(next_observations)   --> tensor([[.2, .8], [.3, .6], [.1, .4]])
+                    .max(dim=1)                 --> torch.return_types.max(values=tensor([.8,.6,.4]), indices=tensor([1,1,1]))
+                        [0]                     --> tensor([.8,.6,.4])
+            '''
+
+        # Calculate q values from current policy (use actions done as index in the tensors)
+        current_q = self.policy_dqn(observations).gather(dim=1, index=actions.unsqueeze(dim=1)).squeeze()
+        '''
+            Supposing we have actions = tensor([1, 0, 1])
+
+            policy_dqn(observations)                            --> tensor([[.2, .8], [.3, .6], [.1, .4]])
+                .gather(dim=1, index=actions.unsqueeze(dim=1))  --> tensor([[.8], [.3], [.4]]) values correspondent to actions
+                    .squeeze()                                  --> tensor([.8, .3, .4])
+        '''
+
+        # Compute loss for the whole mini batch
+        loss = self.loss_fn(current_q, target_q)
+
+        # Optimize the model
+        self.optimizer.zero_grad()  # Clear gradients
+        loss.backward()             # Compute gradients (backpropagation)
+        self.optimizer.step()       # Update network parameters (weight and biases)
+
+        # Increase step count
+        self.step_count += 1
+
+        # Copy policy network to target network after a certain number of steps
+        if self.step_count > self.network_sync_rate:
+            self.target_dqn.load_state_dict(self.policy_dqn.state_dict())
+            self.step_count = 0
     
     def load_model(self, n_episodes: int | None = None):
         model_name = self.get_largest_model_name(self.filename, DQN_Agent.MODEL_EXTENSION, n_episodes)
@@ -623,18 +703,13 @@ class DQN_Agent(Agent):
         torch.save(self.policy_dqn.state_dict(), model_name)
 
     def run(self, n_episodes: int | None, is_training = True, show_plots = True, verbose = True, seed = None):
-        # If is training create the deque for experience replay
         if is_training:
-            self.memory = ReplayMemory(self.replay_memory_size, seed)
-            # TODO: Train for infinite episodes regardless of n_episodes parameter
-            n_episodes = None
+            # Track number of step taken
+            self.step_count = 0
 
             # Create target dqn used while training
             self.target_dqn = DQN(self.state_dim, self.action_dim, self.hidden_dim).to(self.device)
             self.target_dqn.load_state_dict(self.policy_dqn.state_dict())
-
-            # Track number of step taken
-            self.step_count = 0
 
             # Policy network optimizer
             self.optimizer = torch.optim.Adam(self.policy_dqn.parameters(), lr=self.learning_rate)

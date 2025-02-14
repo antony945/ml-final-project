@@ -65,21 +65,47 @@ tetris:
   n_episodes: 100_000
   learning_rate: 0.001
 
-flappybird:
+flappybird_q:
+  dqn: False
   env_args:
     id: FlappyBird-v0
     use_lidar: False
-  replay_memory_size: 100_000
-  mini_batch_size: 32
-  network_sync_rate: 10
+  # Both approaches
+  # seed: 32
   epsilon_init: 1
   epsilon_decay: 0.99995
-  epsilon_min: 0.05
+  epsilon_min: 0.10
+  learning_rate: 0.001
+  discount_factor: 0.95
   # n_episodes: 500_000
+  # stop_on_reward: 100
+  enable_memory: true
+  mini_batch_size: 32
+  min_memory_size: 32
+  max_memory_size: 100_000
+  lazy_update: False
+  # Q-Table specific
+  divisions: 10
+
+flappybird_dqn:
+  dqn: True
+  env_args:
+    id: FlappyBird-v0
+    use_lidar: False
+  # Both approaches
+  # seed: 32
+  epsilon_init: 1
+  epsilon_decay: 0.99995
+  epsilon_min: 0.10
   learning_rate: 0.0001
   discount_factor: 0.95
-  # stop_on_reward: 3.80
+  # n_episodes: 500_000
+  # stop_on_reward: 100
+  enable_memory: true
+  mini_batch_size: 32
+  min_memory_size: 32
+  max_memory_size: 100_000
+  lazy_update: True
+  # DQN specific
+  network_sync_rate: 10
   fc1_nodes: 128
-  divisions: 10
-  dqn: False
-  # seed: 32

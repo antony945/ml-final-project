@@ -88,6 +88,7 @@ def main(hyperparameter_set: str):
     run(hyperparameters, 5, dqn=DQN, is_training=False, show_plots=False, show_render=True, verbose=False, record_video=False, seed=seed)
 
 if __name__ == '__main__':
-    hyperparameter_set = "flappybird"
+    hyperparameter_set = "flappybird_dqn"
+    # hyperparameter_set = "flappybird_q"
     
     main(hyperparameter_set)
