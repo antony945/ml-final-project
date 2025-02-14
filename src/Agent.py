@@ -55,7 +55,7 @@ class Agent:
                 self.env_fullname += f"_{v}"
 
         # Create model filename
-        self.filename = f"{self.env_fullname}"
+        self.filename = f"{self.env_basename}"
 
         # Create logfile
         self.logfile = os.path.join(Agent.LOGS_DIRECTORY, f"{self.env_fullname}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.log")
@@ -73,7 +73,47 @@ class Agent:
         if is_training:
             self.epsilon = max(self.final_epsilon, self.epsilon*self.epsilon_decay)
 
-    def plot_results(self, mean_rewards, epsilon_values, training = False, show = True, integrated = False):
+    def get_largest_model_name(self, filename: str, extension: str, n_episodes: int | None = None):
+        if n_episodes is not None:
+            return os.path.join(Agent.MODELS_DIRECTORY, f"{filename}_{n_episodes}.{extension}")
+        else:
+            # Get the list of all files that match the base filename pattern
+            pattern = rf"{filename}_(\d+)\.{extension}"
+            files = [f for f in os.listdir(Agent.MODELS_DIRECTORY) if re.match(pattern, f)]
+            
+            # Find the largest episode number
+            largest_episode = -1
+            largest_model = None
+            for file in files:
+                match = re.search(pattern, file)
+                if match:
+                    episode_number = int(match.group(1))
+                    if episode_number > largest_episode:
+                        largest_episode = episode_number
+                        largest_model = file
+
+            # TODO: Handle case when largest model is still None            
+            return os.path.join(Agent.MODELS_DIRECTORY, largest_model)
+
+    def create_new_model_name(self, filename: str, extension: str, n_episodes: int | None):
+        model_name = filename
+        model_name += "_temp" if n_episodes is None else f"_{n_episodes}"
+        model_name += f".{extension}"
+        return os.path.join(Agent.MODELS_DIRECTORY, model_name)
+
+    def log_hyperparameters(self, hyperparameters: dict):
+        log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: HYPERPARAMETERS"
+        print(log_msg)
+        with open(self.logfile, 'w') as file:
+            file.write(log_msg + "\n")
+
+        for k,v in hyperparameters.items():
+            log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: {k} = {v}"
+            print(log_msg)
+            with open(self.logfile, 'a') as file:
+                file.write(log_msg + "\n")
+
+    def _internal_plot(self, mean_rewards, epsilon_values, training = False, show = True, integrated = False, additional_parameters: dict | None = None):
         if (integrated):
             # print(f'Episode time taken: {env.time_queue}')
             # print(f'Episode total rewards: {env.return_queue}')
@@ -121,57 +161,23 @@ class Agent:
         labels = [line.get_label() for line in lines]
         ax1.legend(lines, labels, loc="best")  # Single legend in the best position
 
-        plt.title(f"N={len(mean_rewards)}, LR={self.learning_rate}, E_DECAY={self.epsilon_decay}, DISCOUNT={self.discount_factor}")
-        
+        title = f"N={len(mean_rewards)}, LR={self.learning_rate}, DF={self.discount_factor}"
+        for k,v in additional_parameters.items():
+            title += f", {k}={v}"
+
+        plt.title(title)
+
+        agent_type = "Q" if isinstance(self, Q_Agent) else "DQN"
+
         if training:
-            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_fullname}_training.png")
+            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_basename}_{agent_type}_training_{len(mean_rewards)}.png")
         else:
-            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_fullname}_test.png")
+            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_basename}_{agent_type}_test_{len(mean_rewards)}.png")
 
         plt.savefig(filename)
         if show:
             plt.tight_layout()
             plt.show()
-
-    def get_largest_model_name(self, filename: str, extension: str, n_episodes: int | None = None):
-        if n_episodes is not None:
-            return os.path.join(Agent.MODELS_DIRECTORY, f"{filename}_{n_episodes}.{extension}")
-        else:
-            # Get the list of all files that match the base filename pattern
-            pattern = rf"{filename}_(\d+)\.{extension}"
-            files = [f for f in os.listdir(Agent.MODELS_DIRECTORY) if re.match(pattern, f)]
-            
-            # Find the largest episode number
-            largest_episode = -1
-            largest_model = None
-            for file in files:
-                match = re.search(pattern, file)
-                if match:
-                    episode_number = int(match.group(1))
-                    if episode_number > largest_episode:
-                        largest_episode = episode_number
-                        largest_model = file
-
-            # TODO: Handle case when largest model is still None            
-            return os.path.join(Agent.MODELS_DIRECTORY, largest_model)
-
-    def create_new_model_name(self, filename: str, extension: str, n_episodes: int | None):
-        model_name = filename
-        model_name += "_temp" if n_episodes is None else f"_{n_episodes}"
-        model_name += f".{extension}"
-        return os.path.join(Agent.MODELS_DIRECTORY, model_name)
-
-    def log_hyperparameters(self, hyperparameters: dict):
-        log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: HYPERPARAMETERS"
-        print(log_msg)
-        with open(self.logfile, 'w') as file:
-            file.write(log_msg + "\n")
-
-        for k,v in hyperparameters.items():
-            log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: {k} = {v}"
-            print(log_msg)
-            with open(self.logfile, 'a') as file:
-                file.write(log_msg + "\n")
 
     @abc.abstractmethod
     def get_action(self, obs, is_training=True) -> int:
@@ -179,11 +185,11 @@ class Agent:
 
     @abc.abstractmethod
     def update(self,
-        obs: tuple,
+        obs,
         action: int,
         reward: float,
         terminated: bool,
-        next_obs: tuple,
+        next_obs,
         is_training=True
     ):
         raise NotImplementedError
@@ -310,6 +316,10 @@ class Agent:
             epsilon_values = None if not is_training else epsilon_values
             self.plot_results(mean_rewards, epsilon_values, training=is_training, integrated=False)
 
+    @abc.abstractmethod
+    def plot_results(self, mean_rewards, epsilon_values, training = False, show = True, integrated = False):
+        raise NotImplementedError
+
 class Q_Agent(Agent):
     """
     Reinforcement learning agent using the Q-learning algorithm.
@@ -326,12 +336,14 @@ class Q_Agent(Agent):
         hyperparameters: dict,
     ):
         super().initialize(env, hyperparameters)
+
+        # For deciding how to discretize continuous observations
+        self.divisions = self.hyperparameters.get("divisions", 5)
         self.training_error = []
 
         # If obs space is continuous we must discretize it
         self.obs_spaces_size = -1
         self.obs_spaces = []
-        self.divisions = 5
 
         # Handle Discrete obs space (e.g. FrozenLake)
         if (isinstance(self.env.observation_space, gym.spaces.Discrete)):
@@ -443,6 +455,12 @@ class Q_Agent(Agent):
 
 
         super().run(n_episodes, is_training, show_plots, verbose, seed)
+
+    def plot_results(self, mean_rewards, epsilon_values, training = False, show = True, integrated = False):
+        add_parameters = {
+            "DIV": self.divisions
+        }
+        self._internal_plot(mean_rewards, epsilon_values, training, show, integrated, add_parameters)
 
 class DQN(nn.Module):
     def __init__(self,
@@ -626,3 +644,9 @@ class DQN_Agent(Agent):
             self.policy_dqn.eval()
 
         super().run(n_episodes, is_training, show_plots, verbose, seed)
+
+    def plot_results(self, mean_rewards, epsilon_values, training = False, show = True, integrated = False):
+        add_parameters = {
+            "HID": self.hidden_dim
+        }
+        self._internal_plot(mean_rewards, epsilon_values, training, show, integrated, add_parameters)

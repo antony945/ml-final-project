@@ -75,10 +75,11 @@ flappybird:
   epsilon_init: 1
   epsilon_decay: 0.99995
   epsilon_min: 0.05
-  n_episodes: 500_000
+  # n_episodes: 500_000
   learning_rate: 0.0001
   discount_factor: 0.95
-  stop_on_reward: 3.80
+  # stop_on_reward: 3.80
   fc1_nodes: 128
-  dqn: True
+  divisions: 10
+  dqn: False
   # seed: 32
