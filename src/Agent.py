@@ -168,16 +168,19 @@ class Agent:
         plt.title(title)
 
         agent_type = "Q" if isinstance(self, Q_Agent) else "DQN"
+        n_episodes = f"{len(mean_rewards)}" if show is True else "temp"
 
         if training:
-            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_basename}_{agent_type}_training_{len(mean_rewards)}.png")
+            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_basename}_{agent_type}_training_{n_episodes}.png")
         else:
-            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_basename}_{agent_type}_test_{len(mean_rewards)}.png")
+            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_basename}_{agent_type}_test_{n_episodes}.png")
 
         plt.savefig(filename)
         if show:
             plt.tight_layout()
             plt.show()
+        else:
+            plt.close(fig)
 
     @abc.abstractmethod
     def get_action(self, obs, is_training=True) -> int:
@@ -288,9 +291,8 @@ class Agent:
                         print(log_msg)
                     
                 # Save graph every 1000 episodes
-                # TODO: Fix the fact that it shows multiple graph at the end 
-                # if is_training and episode%1000==0:
-                    # self.plot_results(mean_rewards, epsilon_values, training=is_training, show=False, integrated=False)
+                if is_training and episode%1000==0:
+                    self.plot_results(mean_rewards, epsilon_values, training=is_training, show=False, integrated=False)
 
                 # Decay epsilon
                 self.decay_epsilon(is_training)
