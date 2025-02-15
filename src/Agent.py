@@ -192,20 +192,19 @@ class Agent:
 
         agent_type = "Q" if isinstance(self, Q_Agent) else "DQN"
 
-        title = f"{agent_type} - N={len(mean_rewards)}, LR={self.learning_rate}, DECAY={self.epsilon_decay}, DF={self.discount_factor}, LAZY={self.lazy_update}, {memory_string}"
+        title = f"{agent_type} - N={len(mean_rewards)}, LR={self.learning_rate}, DECAY={self.epsilon_decay}, EPS_MIN={self.final_epsilon}, DF={self.discount_factor}, LAZY={self.lazy_update}, {memory_string}"
         for k,v in additional_parameters.items():
             title += f", {k}={v}"
 
         plt.title(title)
 
-        n_episodes = f"{len(mean_rewards)}" if show is True else "temp"
+        n_episodes = f"{len(mean_rewards)}" if show is True else "-1"
+        run_type = "training" if training else "test"
 
-        if training:
-            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_basename}_{agent_type}_training")
-        else:
-            filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_basename}_{agent_type}_test")
+        run_type = run_type if show else "temp"
+        filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_basename}_{agent_type}_{run_type}")
 
-        filename += f"_{self.learning_rate}_{self.discount_factor}_{self.mini_batch_size}_{memory}_{lazy}"
+        filename += f"_{self.learning_rate}_{self.discount_factor}_{self.final_epsilon}_{memory}_{self.mini_batch_size}_{lazy}"
         for k,v in additional_parameters.items():
             filename += f"_{k}-{v}"
 
@@ -384,7 +383,7 @@ class Agent:
 
                 # Debug every 100 episodes
                 if episode%100==0:
-                    log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: Episode {episode}) Epsilon: {self.epsilon:0.2f}, Mean Steps: {avg_frame}, Reward: {rewards:.3f}, Best Reward: {best_reward:.2f}, Mean Reward {avg_reward:.2f}"
+                    log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: Episode {episode}) Epsilon: {self.epsilon:0.3f}, Mean Steps: {avg_frame}, Reward: {rewards:.2f}, Best Reward: {best_reward:.2f}, Mean Reward {avg_reward:.2f}"
                     with open(self.logfile, 'a') as file:
                         file.write(log_msg + "\n")
 

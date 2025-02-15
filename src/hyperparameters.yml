@@ -100,12 +100,12 @@ flappybird_dqn:
   # seed: 32
   epsilon_init: 1
   epsilon_decay: 0.99995
-  epsilon_min: 0.01         # 0.05 seems to perform better than 0.10
+  epsilon_min: 0.025         # 0.01 maybe too low, performs like 0.05 in test ? 0.05 maybe ok, but we can try lower > 0.10
   learning_rate: 0.001
   discount_factor: 0.95
   n_episodes: 200_000
   # stop_on_reward: 100
-  enable_ER: false           # enable Experience Replay (ER)
+  enable_ER: true           # enable Experience Replay (ER)
   enable_PER: false          # enable Prioritized Experience Replay (PER) (overrides enable_ER)
   alpha_PER: 0.6            # alpha for PER
   beta_init_PER: 0.4        # beta init for PER
@@ -118,4 +118,4 @@ flappybird_dqn:
   network_sync_rate: 10
   fc1_nodes: 128
   # Q-Table specific
-  divisions: 10 # 10 perfect value, 15 so-so, anything <=5 or >= 15 is bad
+  divisions: 10 # something between 8 and 12, 10 perfect value, anything <=5 or >= 15 is bad
