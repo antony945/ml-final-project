@@ -12,7 +12,6 @@ import torch.nn.functional as F
 from ReplayMemory import ReplayMemory
 from tqdm import tqdm
 import itertools
-import yaml
 from datetime import datetime
 import time
 
@@ -69,21 +68,23 @@ class Agent:
         self.final_epsilon =        self.hyperparameters.get('epsilon_min', 0.05)
         self.discount_factor =      self.hyperparameters.get('discount_factor', None)
         self.stop_on_reward =       self.hyperparameters.get('stop_on_reward', None)
-        self.enable_memory =        self.hyperparameters.get('enable_memory', True)
+        self.enable_ER =            self.hyperparameters.get('enable_ER', True)
+        self.enable_PER =           self.hyperparameters.get('enable_PER', True)
+        self.epsilon_PER =          self.hyperparameters.get('epsilon_PER', 0.001)
+        self.alpha_PER =            self.hyperparameters.get('alpha_PER', 0.6)
+        self.beta_init_PER =        self.hyperparameters.get('beta_init_PER', 0.4)
+        self.beta_end_PER =         self.hyperparameters.get('beta_end_PER', 1.0)
         self.mini_batch_size =      self.hyperparameters.get('mini_batch_size', 64)
         self.min_memory_size =      self.hyperparameters.get('min_memory_size', 1_000)
         self.max_memory_size =      self.hyperparameters.get('max_memory_size', 100_000)
         self.lazy_update =          self.hyperparameters.get('lazy_update', False)
 
+        # TODO: For now let's stick with this beta, but has to change
+        self.beta_PER = self.beta_init_PER
+
     def decay_epsilon(self, is_training):
         if is_training:
             self.epsilon = max(self.final_epsilon, self.epsilon*self.epsilon_decay)
-
-            # Peform update at the end of episode, during epsilon decay
-            if self.lazy_update:
-                mini_batch = self.sample_memory()
-                if mini_batch is not None:
-                    self.optimize(mini_batch)
 
     def get_largest_model_name(self, filename: str, extension: str, n_episodes: int | None = None):
         if n_episodes is not None:
@@ -125,7 +126,7 @@ class Agent:
             with open(self.logfile, 'a') as file:
                 file.write(log_msg + "\n")
 
-    def _internal_plot(self, mean_rewards, epsilon_values, training = False, show = True, integrated = False, additional_parameters: dict | None = None):
+    def _internal_plot(self, all_rewards, mean_rewards, epsilon_values, training = False, show = True, integrated = False, additional_parameters: dict | None = None):
         if (integrated):
             # print(f'Episode time taken: {env.time_queue}')
             # print(f'Episode total rewards: {env.return_queue}')
@@ -151,8 +152,12 @@ class Agent:
                 axs[2].set_xlabel("Episode")
                 axs[2].set_ylabel("Temporal Difference")
         else:
-            fig, ax1 = plt.subplots()
+            fig, ax1 = plt.subplots(figsize=(12, 6))
             lines = []
+
+            # Plot all individual episode rewards in light gray
+            line0, = ax1.plot(all_rewards, label="Episode Reward", color="gray", alpha=0.5)
+            lines.append(line0)
 
             # Plot mean_rewards on the primary y-axis
             line1, = ax1.plot(mean_rewards, label="Mean Reward", color="b")
@@ -173,13 +178,26 @@ class Agent:
         labels = [line.get_label() for line in lines]
         ax1.legend(lines, labels, loc="best")  # Single legend in the best position
 
-        title = f"N={len(mean_rewards)}, LR={self.learning_rate}, DECAY={self.epsilon_decay}, DF={self.discount_factor}, BATCH={self.mini_batch_size}"
+        if self.enable_PER:
+            memory = "PER"
+            memory_string = f"MEM={memory}, BATCH={self.mini_batch_size}, ALPHA={self.alpha_PER}, BETA={self.beta_init_PER}, EPS={self.epsilon_PER}"
+        elif self.enable_ER:
+            memory = "ER"
+            memory_string = f"MEM={memory}, BATCH={self.mini_batch_size}"
+        else:
+            memory = "None"
+            memory_string = f"MEM={memory}"
+
+        lazy = "LAZY" if self.lazy_update else ""
+
+        agent_type = "Q" if isinstance(self, Q_Agent) else "DQN"
+
+        title = f"{agent_type} - N={len(mean_rewards)}, LR={self.learning_rate}, DECAY={self.epsilon_decay}, DF={self.discount_factor}, LAZY={self.lazy_update}, {memory_string}"
         for k,v in additional_parameters.items():
             title += f", {k}={v}"
 
         plt.title(title)
 
-        agent_type = "Q" if isinstance(self, Q_Agent) else "DQN"
         n_episodes = f"{len(mean_rewards)}" if show is True else "temp"
 
         if training:
@@ -187,11 +205,11 @@ class Agent:
         else:
             filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_basename}_{agent_type}_test")
 
-        filename += f"_{n_episodes}_{self.learning_rate}_{self.discount_factor}_{self.mini_batch_size}"
+        filename += f"_{self.learning_rate}_{self.discount_factor}_{self.mini_batch_size}_{memory}_{lazy}"
         for k,v in additional_parameters.items():
             filename += f"_{k}-{v}"
 
-        filename += ".png"
+        filename += f"_{n_episodes}.png"
 
         plt.savefig(filename)
         if show:
@@ -201,13 +219,24 @@ class Agent:
             plt.close(fig)
 
     def sample_memory(self):
+        """
+        :return: (batch, importance weights, indices)
+        """
+
         # Check if we collected enough experience, if not don't update
         if len(self.memory) <= self.min_memory_size: return None
 
         # If so, sample batch size from memory to reduce correlation between consecutive experiences 
-        mini_batch = self.memory.sample(self.mini_batch_size)
+        mini_batch, weights, indices = self.memory.sample(self.mini_batch_size, beta=self.beta_PER)
 
-        return mini_batch
+        return mini_batch, weights, indices
+
+    def optimize_update(self, mini_batch, indices):
+        if (mini_batch is None): return
+
+        td_errors = self.optimize(mini_batch)
+        if (self.enable_PER):
+            self.memory.update_priorities(indices, np.abs(td_errors))
 
     @abc.abstractmethod
     def get_action(self, obs, is_training=True) -> int:
@@ -228,7 +257,7 @@ class Agent:
         current_row = (obs, action, reward, terminated, next_obs)
         
         # Depending on memory enabled or not, handle the update
-        if self.enable_memory:
+        if self.enable_ER or self.enable_PER:
             # Append memory
             self.memory.append(current_row)
 
@@ -239,7 +268,7 @@ class Agent:
             return self.sample_memory()
         else:
             # If experience replay not enabled, process just current observation
-            return current_row
+            return ([current_row], None, None)
     
     @abc.abstractmethod
     def optimize(self, minibatch):
@@ -257,9 +286,14 @@ class Agent:
     def run(self, n_episodes: int | None, is_training = True, show_plots = True, verbose = True, seed = None):
         if is_training:
             # Handle experience replay if enabled    
-            if self.enable_memory:
+            if self.enable_ER:
                 # Create the deque for experience replay
-                self.memory = ReplayMemory(self.max_memory_size, seed)
+                self.memory = ReplayMemory(
+                    capacity=self.max_memory_size,
+                    use_priority=self.enable_PER,
+                    alpha=self.alpha_PER,
+                    epsilon=self.epsilon_PER,
+                    seed=seed)
             
             # Initialize log file
             self.log_hyperparameters(self.hyperparameters)
@@ -327,9 +361,14 @@ class Agent:
                 avg_frame = np.mean(frames_per_episode[len(frames_per_episode)-100:])
                 avg_frames.append(avg_frame)
 
-                # At the end of episode handle rewards      
-                if is_training and rewards > best_reward:
-                    log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: Episode {episode}), Steps: {frames}, New Best Reward {rewards:.2f} ({((rewards-best_reward)/abs(best_reward)*100):+.1f}%)"
+                # If is not training continue to next episode
+                if not is_training:
+                    continue
+
+                # ONLY IN TRAINING
+                # At the end of episode handle rewards
+                if rewards > best_reward:
+                    log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: Episode {episode}) Steps: {frames}, New Best Reward {rewards:.2f} ({((rewards-best_reward)/abs(best_reward)*100):+.1f}%)"
                     if verbose:
                         print(log_msg)
                     with open(self.logfile, 'a') as file:
@@ -344,7 +383,7 @@ class Agent:
                         break
 
                 # Debug every 100 episodes
-                if is_training and episode%100==0:
+                if episode%100==0:
                     log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: Episode {episode}) Epsilon: {self.epsilon:0.2f}, Mean Steps: {avg_frame}, Reward: {rewards:.3f}, Best Reward: {best_reward:.2f}, Mean Reward {avg_reward:.2f}"
                     with open(self.logfile, 'a') as file:
                         file.write(log_msg + "\n")
@@ -353,11 +392,18 @@ class Agent:
                         print(log_msg)
                     
                 # Save graph every 1000 episodes
-                if is_training and episode%1000==0:
-                    self.plot_results(avg_rewards, epsilon_values, training=is_training, show=False, integrated=False)
+                if episode%1000==0:
+                    self.plot_results(rewards_per_episode, avg_rewards, epsilon_values, training=is_training, show=False, integrated=False)
 
-                # Decay epsilon
+                # Decay epsilon and perform update here if lazy update is enabled
                 self.decay_epsilon(is_training)
+
+                # Peform update at the end of episode
+                if self.lazy_update:
+                    tuple_returned = self.sample_memory()
+                    if tuple_returned is not None:
+                        mini_batch, weights, indices = tuple_returned
+                        self.optimize_update(mini_batch, indices)
 
         except KeyboardInterrupt:
             print("\nCTRL+C pressed.\n")
@@ -378,10 +424,10 @@ class Agent:
         # Display plots
         if show_plots:
             epsilon_values = None if not is_training else epsilon_values
-            self.plot_results(avg_rewards, epsilon_values, training=is_training, integrated=False)
+            self.plot_results(rewards_per_episode, avg_rewards, epsilon_values, training=is_training, integrated=False)
 
     @abc.abstractmethod
-    def plot_results(self, mean_rewards, epsilon_values, training = False, show = True, integrated = False):
+    def plot_results(self, all_rewards, mean_rewards, epsilon_values, training = False, show = True, integrated = False):
         raise NotImplementedError
 
 class Q_Agent(Agent):
@@ -477,11 +523,13 @@ class Q_Agent(Agent):
         next_obs = self._discretize_obs(next_obs)
 
         # Call parent update to get mini batch to process
-        mini_batch = super().update(obs, action, reward, terminated, next_obs, is_training)
-        if mini_batch is None or self.lazy_update: return
+        tuple_returned = super().update(obs, action, reward, terminated, next_obs, is_training)
+        if tuple_returned is None or self.lazy_update: return
+
+        mini_batch, weights, indices = tuple_returned
 
         # Update Q-table after having performed action
-        self.optimize(mini_batch)
+        self.optimize_update(mini_batch, indices)
 
     def optimize(self, mini_batch):
         # Process mini batch all at once to reduce time
@@ -509,6 +557,7 @@ class Q_Agent(Agent):
 
         # Store training errors
         self.training_error.extend(td_errors)
+        return td_errors
 
     def load_model(self, n_episodes: int | None = None):
         model_name = self.get_largest_model_name(self.filename, Q_Agent.MODEL_EXTENSION, n_episodes)
@@ -547,11 +596,11 @@ class Q_Agent(Agent):
 
         super().run(n_episodes, is_training, show_plots, verbose, seed)
 
-    def plot_results(self, mean_rewards, epsilon_values, training = False, show = True, integrated = False):
+    def plot_results(self, all_rewards, mean_rewards, epsilon_values, training = False, show = True, integrated = False):
         add_parameters = {
             "DIV": self.divisions
         }
-        self._internal_plot(mean_rewards, epsilon_values, training, show, integrated, add_parameters)
+        self._internal_plot(all_rewards, mean_rewards, epsilon_values, training, show, integrated, add_parameters)
 
 class DQN(nn.Module):
     def __init__(self,
@@ -636,11 +685,13 @@ class DQN_Agent(Agent):
         next_obs = torch.tensor(next_obs, dtype=torch.float, device=self.device)
         
         # Call parent update to get mini batch to process
-        mini_batch = super().update(obs, action, reward, terminated, next_obs, is_training)
-        if mini_batch is None or self.lazy_update: return
+        tuple_returned = super().update(obs, action, reward, terminated, next_obs, is_training)
+        if tuple_returned is None or self.lazy_update: return
+
+        mini_batch, weights, indices = tuple_returned
 
         # Optimize target and policy dqn
-        self.optimize(mini_batch)
+        self.optimize_update(mini_batch, indices)
 
     def optimize(self, mini_batch):
         # Process mini batch all at once to reduce time
@@ -688,6 +739,10 @@ class DQN_Agent(Agent):
         if self.step_count > self.network_sync_rate:
             self.target_dqn.load_state_dict(self.policy_dqn.state_dict())
             self.step_count = 0
+
+        # Compute TD errors and convert to NumPy array
+        td_errors = (target_q - current_q).detach().cpu().numpy()
+        return td_errors
     
     def load_model(self, n_episodes: int | None = None):
         model_name = self.get_largest_model_name(self.filename, DQN_Agent.MODEL_EXTENSION, n_episodes)
@@ -722,8 +777,8 @@ class DQN_Agent(Agent):
 
         super().run(n_episodes, is_training, show_plots, verbose, seed)
 
-    def plot_results(self, mean_rewards, epsilon_values, training = False, show = True, integrated = False):
+    def plot_results(self, all_rewards, mean_rewards, epsilon_values, training = False, show = True, integrated = False):
         add_parameters = {
             "HID": self.hidden_dim
         }
-        self._internal_plot(mean_rewards, epsilon_values, training, show, integrated, add_parameters)
+        self._internal_plot(all_rewards, mean_rewards, epsilon_values, training, show, integrated, add_parameters)

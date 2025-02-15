@@ -74,21 +74,25 @@ flappybird_q:
   # seed: 32
   epsilon_init: 1
   epsilon_decay: 0.99995
-  epsilon_min: 0.10
+  epsilon_min: 0.05         # 0.05 seems to perform better than 0.10
   learning_rate: 0.001
   discount_factor: 0.95
   # n_episodes: 500_000
   # stop_on_reward: 100
-  enable_memory: true
-  mini_batch_size: 32
-  min_memory_size: 32
-  max_memory_size: 100_000
-  lazy_update: False
+  enable_ER: false           # enable Experience Replay (ER)
+  enable_PER: false          # enable Prioritized Experience Replay (PER) (overrides enable_ER)
+  alpha_PER: 0.6            # alpha for PER
+  beta_init_PER: 0.4        # beta init for PER
+  beta_final_PER: 1.0       # beta final for PER
+  mini_batch_size: 64       # 64 seems to perform better than 32 for DQN (but needs to try)
+  min_memory_size: 64
+  max_memory_size: 131_072  # to use power of 2, 2^17
+  lazy_update: false        # true seems to perform better than false for DQN
   # Q-Table specific
-  divisions: 10
+  divisions: 15
 
 flappybird_dqn:
-  dqn: True
+  dqn: False
   env_args:
     id: FlappyBird-v0
     use_lidar: False
@@ -96,16 +100,22 @@ flappybird_dqn:
   # seed: 32
   epsilon_init: 1
   epsilon_decay: 0.99995
-  epsilon_min: 0.10
-  learning_rate: 0.0001
+  epsilon_min: 0.01         # 0.05 seems to perform better than 0.10
+  learning_rate: 0.001
   discount_factor: 0.95
-  # n_episodes: 500_000
+  n_episodes: 200_000
   # stop_on_reward: 100
-  enable_memory: true
-  mini_batch_size: 32
-  min_memory_size: 32
-  max_memory_size: 100_000
-  lazy_update: True
+  enable_ER: false           # enable Experience Replay (ER)
+  enable_PER: false          # enable Prioritized Experience Replay (PER) (overrides enable_ER)
+  alpha_PER: 0.6            # alpha for PER
+  beta_init_PER: 0.4        # beta init for PER
+  beta_final_PER: 1.0       # beta final for PER
+  mini_batch_size: 64       # 64 seems to perform better than 32 for DQN (but needs to try)
+  min_memory_size: 64
+  max_memory_size: 131_072  # to use power of 2, 2^17
+  lazy_update: false         # true seems to perform better than false for DQN
   # DQN specific
   network_sync_rate: 10
   fc1_nodes: 128
+  # Q-Table specific
+  divisions: 10 # 10 perfect value, 15 so-so, anything <=5 or >= 15 is bad
