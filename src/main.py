@@ -82,8 +82,23 @@ def main(hyperparameter_set: str):
     model_name = run(hyperparameters, hyperparameters.get('n_episodes', None), dqn=DQN, is_training=True, show_plots=True, show_render=False, verbose=True, record_video=False, model_name=None, seed=seed)
 
     # model_name = "models/FlappyBird_LR=0.001_DF=0.95_EPS=0.03_MEM=None__N=200000.pk1"
-    # model_name = "FlappyBird_LR=0.001_DF=0.95_EPS=0.03_MEM=PER, BATCH=64, ALPHA=0.6, BETA=0.4, EPS=0.001_LAZY_N=200000.pk1"
+    # model_name = "FlappyBird_LR=0.001_DF=0.95_EPS=0.03_MEM=PER, BATCH=64, ALPHA=0.6, FIXEDBETA=0.4, EPS=0.001_LAZY_N=200000.pk1"
     # model_name = "FlappyBird_temp_LR=0.001_DF=0.95_EPS=0.03_MEM=PER, BATCH=64, ALPHA=0.6, BETA=0.4, EPS=0.001_.pk1"
+    # model_name = "FlappyBird_temp_LR=0.001_DF=0.95_EPS=0.03_MEM=ER, BATCH=64_LAZY.pk1"
+    
+    # model_name = "FlappyBird_LR=0.001_DF=0.95_EPS=0.03_MEM=ER, BATCH=64_LAZY_N=185021.pk1"
+    # model_name = "FlappyBird_temp_LR=0.001_DF=0.95_EPS=0.03_MEM=ER, BATCH=64_LAZY.pk1"
+    # model_name = "FlappyBird_temp_LR=0.001_DF=0.95_EPS=0.01_MEM=None_.pk1"
+    # model_name = "FlappyBird_temp_LR=0.0001_DF=0.95_EPS=0.01_MEM=None_.pk1"
+    # model_name = "FlappyBird_LR=0.0001_DF=0.95_EPS=0.01_MEM=None__N=1000000.pk1" # avg reward in test: 7
+    # model_name = "FlappyBird_LR=0.001_DF=0.95_EPS=0.01_MEM=None__N=1000000.pk1" # avg reward in test: 5
+
+    # model_name = "FlappyBird_False_temp.pt"         # avg reward in test: 20
+    # model_name = "FlappyBird_173742.pt"             # avg reward in test: 3.90
+    # model_name = "FlappyBird_195776.pt"             # avg reward in test: 20
+    # model_name = "FlappyBird_231320.pt"             # avg reward in test: 13
+    # model_name = "FlappyBird_850005.pt"             # avg reward in test: 4.8
+    # model_name = "FlappyBird_1036177_best_model.pt" # avg reward in test: 50
     # model_name = f"models/{model_name}"
     # RUN
     run(hyperparameters, 1000, dqn=DQN, is_training=False, show_plots=True, show_render=False, verbose=False, record_video=False, model_name=model_name, seed=seed)
