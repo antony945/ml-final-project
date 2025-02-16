@@ -115,6 +115,7 @@ flappybird_dqn:
   max_memory_size: 131_072  # to use power of 2, 2^17
   lazy_update: true         # true seems to perform better than false for DQN
   # DQN specific
+  use_target_dqn: true
   network_sync_rate: 10
   fc1_nodes: 128
   # Q-Table specific

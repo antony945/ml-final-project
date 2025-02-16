@@ -195,7 +195,7 @@ class Agent:
 
         if self.enable_PER:
             memory = "PER"
-            memory_string = f"MEM={memory}, BATCH={self.mini_batch_size}, ALPHA={self.alpha_PER}, BETA={self.beta_init_PER}"
+            memory_string = f"MEM={memory}, BATCH={self.mini_batch_size}"
         elif self.enable_ER:
             memory = "ER"
             memory_string = f"MEM={memory}, BATCH={self.mini_batch_size}"
@@ -659,11 +659,17 @@ class DQN_Agent(Agent):
         # Agent initialize method
         super().initialize(env, hyperparameters)
 
+        self.use_target_dqn =       self.hyperparameters.get('use_target_dqn', True)
         self.network_sync_rate =    self.hyperparameters.get('network_sync_rate', 10)
         self.hidden_dim =           self.hyperparameters.get('fc1_nodes', 128)
 
         # NN loss function, MSE = Mean Squared Error
         self.loss_fn = nn.MSELoss()
+        # NN loss function, Huber loss
+        # acts like the mean squared error when the error is small
+        # but like the mean absolute error when the error is large
+        # self.loss_fn = nn.SmoothL1Loss()
+
         # NN optimizer to initialize later
         self.optimizer = None
 
@@ -727,9 +733,13 @@ class DQN_Agent(Agent):
         # Convert true/false in 1.0/0.0
         terminations = torch.tensor(terminations).float().to(self.device)
 
+
+        # Define if using the target dqn (2nd NN) or to use the policy dqn to estimate q_target
+        target_network = self.target_dqn if self.use_target_dqn else self.policy_dqn
+
         with torch.no_grad():
             # Calculate target q values (expected returns)
-            target_q = rewards + (1-terminations) * self.discount_factor * self.target_dqn(next_observations).max(dim=1)[0]
+            target_q = rewards + (1-terminations) * self.discount_factor * target_network(next_observations).max(dim=1)[0]
             '''
                 target_dqn(next_observations)   --> tensor([[.2, .8], [.3, .6], [.1, .4]])
                     .max(dim=1)                 --> torch.return_types.max(values=tensor([.8,.6,.4]), indices=tensor([1,1,1]))
@@ -758,7 +768,7 @@ class DQN_Agent(Agent):
         self.step_count += 1
 
         # Copy policy network to target network after a certain number of steps
-        if self.step_count > self.network_sync_rate:
+        if self.use_target_dqn and self.step_count > self.network_sync_rate:
             self.target_dqn.load_state_dict(self.policy_dqn.state_dict())
             self.step_count = 0
 
@@ -788,8 +798,9 @@ class DQN_Agent(Agent):
             self.step_count = 0
 
             # Create target dqn used while training
-            self.target_dqn = DQN(self.state_dim, self.action_dim, self.hidden_dim).to(self.device)
-            self.target_dqn.load_state_dict(self.policy_dqn.state_dict())
+            if self.use_target_dqn:
+                self.target_dqn = DQN(self.state_dim, self.action_dim, self.hidden_dim).to(self.device)
+                self.target_dqn.load_state_dict(self.policy_dqn.state_dict())
 
             # Policy network optimizer
             self.optimizer = torch.optim.Adam(self.policy_dqn.parameters(), lr=self.learning_rate)
@@ -804,6 +815,7 @@ class DQN_Agent(Agent):
 
     def plot_results(self, all_rewards, mean_rewards, epsilon_values, training = False, temp = False, show = True, integrated = False):
         add_parameters = {
+            "tDQN": self.use_target_dqn,
             "HID": self.hidden_dim
         }
         self._internal_plot(all_rewards, mean_rewards, epsilon_values, training, temp, show, integrated, add_parameters)
