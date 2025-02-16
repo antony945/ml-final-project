@@ -108,11 +108,26 @@ class Agent:
             # TODO: Handle case when largest model is still None            
             return os.path.join(Agent.MODELS_DIRECTORY, largest_model)
 
-    def create_new_model_name(self, filename: str, extension: str, n_episodes: int | None):
-        model_name = filename
-        model_name += "_temp" if n_episodes is None else f"_{n_episodes}"
-        model_name += f".{extension}"
-        return os.path.join(Agent.MODELS_DIRECTORY, model_name)
+    def create_new_model_name(self, extension: str, n_episodes: int | None):
+        if self.enable_PER:
+            memory = "PER"
+            memory_string = f"MEM={memory}, BATCH={self.mini_batch_size}, ALPHA={self.alpha_PER}, BETA={self.beta_init_PER}, EPS={self.epsilon_PER}"
+        elif self.enable_ER:
+            memory = "ER"
+            memory_string = f"MEM={memory}, BATCH={self.mini_batch_size}"
+        else:
+            memory = "None"
+            memory_string = f"MEM={memory}"
+
+        lazy = "LAZY" if self.lazy_update else ""
+        if n_episodes is None:
+            filename = f"{self.env_basename}_temp_LR={self.learning_rate}_DF={self.discount_factor}_EPS={self.final_epsilon}_{memory_string}_{lazy}"
+        else:
+            filename = f"{self.env_basename}_LR={self.learning_rate}_DF={self.discount_factor}_EPS={self.final_epsilon}_{memory_string}_{lazy}_N={n_episodes}"
+        
+        filename += f".{extension}"
+
+        return os.path.join(Agent.MODELS_DIRECTORY, filename)
 
     def log_hyperparameters(self, hyperparameters: dict):
         log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: HYPERPARAMETERS"
@@ -126,7 +141,7 @@ class Agent:
             with open(self.logfile, 'a') as file:
                 file.write(log_msg + "\n")
 
-    def _internal_plot(self, all_rewards, mean_rewards, epsilon_values, training = False, show = True, integrated = False, additional_parameters: dict | None = None):
+    def _internal_plot(self, all_rewards, mean_rewards, epsilon_values, training = False, temp = False, show = True, integrated = False, additional_parameters: dict | None = None):
         if (integrated):
             # print(f'Episode time taken: {env.time_queue}')
             # print(f'Episode total rewards: {env.return_queue}')
@@ -180,7 +195,7 @@ class Agent:
 
         if self.enable_PER:
             memory = "PER"
-            memory_string = f"MEM={memory}, BATCH={self.mini_batch_size}, ALPHA={self.alpha_PER}, BETA={self.beta_init_PER}, EPS={self.epsilon_PER}"
+            memory_string = f"MEM={memory}, BATCH={self.mini_batch_size}, ALPHA={self.alpha_PER}, BETA={self.beta_init_PER}"
         elif self.enable_ER:
             memory = "ER"
             memory_string = f"MEM={memory}, BATCH={self.mini_batch_size}"
@@ -189,7 +204,6 @@ class Agent:
             memory_string = f"MEM={memory}"
 
         lazy = "LAZY" if self.lazy_update else ""
-
         agent_type = "Q" if isinstance(self, Q_Agent) else "DQN"
 
         title = f"{agent_type} - N={len(mean_rewards)}, LR={self.learning_rate}, DECAY={self.epsilon_decay}, EPS_MIN={self.final_epsilon}, DF={self.discount_factor}, LAZY={self.lazy_update}, {memory_string}"
@@ -198,17 +212,19 @@ class Agent:
 
         plt.title(title)
 
-        n_episodes = f"{len(mean_rewards)}" if show is True else "-1"
+        n_episodes = f"{len(mean_rewards)}" if not temp else "-1"
         run_type = "training" if training else "test"
 
-        run_type = run_type if show else "temp"
-        filename = os.path.join(Agent.RESULTS_DIRECTORY, f"{self.env_basename}_{agent_type}_{run_type}")
+        run_type = run_type if not temp else "temp"
+        filename = f"{self.env_basename}_{agent_type}_{run_type}"
 
         filename += f"_{self.learning_rate}_{self.discount_factor}_{self.final_epsilon}_{memory}_{self.mini_batch_size}_{lazy}"
         for k,v in additional_parameters.items():
             filename += f"_{k}-{v}"
 
         filename += f"_{n_episodes}.png"
+
+        filename = os.path.join(Agent.RESULTS_DIRECTORY, filename) 
 
         plt.savefig(filename)
         if show:
@@ -226,7 +242,7 @@ class Agent:
         if len(self.memory) <= self.min_memory_size: return None
 
         # If so, sample batch size from memory to reduce correlation between consecutive experiences 
-        mini_batch, weights, indices = self.memory.sample(self.mini_batch_size, beta=self.beta_PER)
+        mini_batch, weights, indices = self.memory.sample(self.mini_batch_size)
 
         return mini_batch, weights, indices
 
@@ -274,7 +290,7 @@ class Agent:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def load_model(self, n_episodes: int | None = None):
+    def load_model(self, model_name: str | None = None, n_episodes: int | None = None):    
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -282,15 +298,16 @@ class Agent:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def run(self, n_episodes: int | None, is_training = True, show_plots = True, verbose = True, seed = None):
+    def run(self, n_episodes: int | None, is_training = True, show_plots = True, verbose = True, model_name = None, seed = None):
         if is_training:
             # Handle experience replay if enabled    
-            if self.enable_ER:
+            if self.enable_ER or self.enable_PER:
                 # Create the deque for experience replay
                 self.memory = ReplayMemory(
                     capacity=self.max_memory_size,
                     use_priority=self.enable_PER,
                     alpha=self.alpha_PER,
+                    beta=self.beta_init_PER,
                     epsilon=self.epsilon_PER,
                     seed=seed)
             
@@ -384,6 +401,9 @@ class Agent:
                 # Debug every 100 episodes
                 if episode%100==0:
                     log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: Episode {episode}) Epsilon: {self.epsilon:0.3f}, Mean Steps: {avg_frame}, Reward: {rewards:.2f}, Best Reward: {best_reward:.2f}, Mean Reward {avg_reward:.2f}"
+                    if self.enable_PER:
+                        log_msg += f", Beta: {self.memory.beta:.3f}"
+                    
                     with open(self.logfile, 'a') as file:
                         file.write(log_msg + "\n")
 
@@ -392,13 +412,13 @@ class Agent:
                     
                 # Save graph every 1000 episodes
                 if episode%1000==0:
-                    self.plot_results(rewards_per_episode, avg_rewards, epsilon_values, training=is_training, show=False, integrated=False)
+                    self.plot_results(rewards_per_episode, avg_rewards, epsilon_values, training=is_training, temp=True, show=False, integrated=False)
 
                 # Decay epsilon and perform update here if lazy update is enabled
                 self.decay_epsilon(is_training)
 
                 # Peform update at the end of episode
-                if self.lazy_update:
+                if self.lazy_update and (self.enable_ER or self.enable_PER):
                     tuple_returned = self.sample_memory()
                     if tuple_returned is not None:
                         mini_batch, weights, indices = tuple_returned
@@ -423,10 +443,10 @@ class Agent:
         # Display plots
         if show_plots:
             epsilon_values = None if not is_training else epsilon_values
-            self.plot_results(rewards_per_episode, avg_rewards, epsilon_values, training=is_training, integrated=False)
+            self.plot_results(rewards_per_episode, avg_rewards, epsilon_values, training=is_training, temp=False, show=show_plots, integrated=False)
 
     @abc.abstractmethod
-    def plot_results(self, all_rewards, mean_rewards, epsilon_values, training = False, show = True, integrated = False):
+    def plot_results(self, all_rewards, mean_rewards, epsilon_values, training = False, temp=False, show = True, integrated = False):
         raise NotImplementedError
 
 class Q_Agent(Agent):
@@ -558,31 +578,34 @@ class Q_Agent(Agent):
         self.training_error.extend(td_errors)
         return td_errors
 
-    def load_model(self, n_episodes: int | None = None):
-        model_name = self.get_largest_model_name(self.filename, Q_Agent.MODEL_EXTENSION, n_episodes)
-        print(f"Loading Q-Table from: '{model_name}'..")
+    def load_model(self, model_name: str | None = None, n_episodes: int | None = None):
+        if model_name is None:
+            self.model_name = self.get_largest_model_name(self.filename, Q_Agent.MODEL_EXTENSION, n_episodes)
+        else:
+            self.model_name = model_name
+        print(f"Loading Q-Table from: '{self.model_name}'..")
 
-        with open(model_name, "rb") as f:
+        with open(self.model_name, "rb") as f:
             # TODO: Check problem here or in load model. I think that the loaded dict is not the one I have saved
             # Load dict table
             self.q_table = pickle.load(f)
 
     def save_model(self, n_episodes: int | None):
-        model_name = self.create_new_model_name(self.filename, Q_Agent.MODEL_EXTENSION, n_episodes)
+        self.model_name = self.create_new_model_name(Q_Agent.MODEL_EXTENSION, n_episodes)
 
         # Print only when saving non-temprary models
         if n_episodes is not None:
-            print(f"Saving Q-Table to: '{model_name}'..")
+            print(f"Saving Q-Table to: '{self.model_name}'..")
             print(f"Q-Table size: {len(self.q_table)} x {self.env.action_space.n}")
 
-        with open(model_name, "wb") as f:
+        with open(self.model_name, "wb") as f:
             # TODO: Check problem here or in load model. I think that the loaded dict is not the one I have saved
             pickle.dump(dict(self.q_table), f)
 
-    def run(self, n_episodes: int | None, is_training = True, show_plots = True, verbose = True, seed = None):
+    def run(self, n_episodes: int | None, is_training = True, show_plots = True, verbose = True, model_name = None, seed = None):
         # Load from model if is not training
         if not is_training:
-            self.load_model(n_episodes=None)
+            self.load_model(model_name=model_name, n_episodes=None)
             
         if self.q_table is not None:
             # Transform dict table into default dict
@@ -593,13 +616,13 @@ class Q_Agent(Agent):
             # self.q_table = defaultdict(lambda: np.zeros(env.action_space.n))
             self.q_table = defaultdict(self._create_numpy_entry) # can't use lambda due to pickle not able to "pickle" an anon function
 
-        super().run(n_episodes, is_training, show_plots, verbose, seed)
+        super().run(n_episodes, is_training, show_plots, verbose, model_name, seed)
 
-    def plot_results(self, all_rewards, mean_rewards, epsilon_values, training = False, show = True, integrated = False):
+    def plot_results(self, all_rewards, mean_rewards, epsilon_values, training = False, temp = False, show = True, integrated = False):
         add_parameters = {
             "DIV": self.divisions
         }
-        self._internal_plot(all_rewards, mean_rewards, epsilon_values, training, show, integrated, add_parameters)
+        self._internal_plot(all_rewards, mean_rewards, epsilon_values, training, temp, show, integrated, add_parameters)
 
 class DQN(nn.Module):
     def __init__(self,
@@ -743,20 +766,23 @@ class DQN_Agent(Agent):
         td_errors = (target_q - current_q).detach().cpu().numpy()
         return td_errors
     
-    def load_model(self, n_episodes: int | None = None):
-        model_name = self.get_largest_model_name(self.filename, DQN_Agent.MODEL_EXTENSION, n_episodes)
-        print(f"Loading DQN from: '{model_name}'..")
-        self.policy_dqn.load_state_dict(torch.load(model_name))
+    def load_model(self, model_name: str | None = None, n_episodes: int | None = None):
+        if model_name is None:
+            self.model_name = self.get_largest_model_name(self.filename, DQN_Agent.MODEL_EXTENSION, n_episodes)
+        else:
+            self.model_name = model_name
+        print(f"Loading DQN from: '{self.model_name}'..")
+        self.policy_dqn.load_state_dict(torch.load(self.model_name))
 
     def save_model(self, n_episodes: int | None):
-        model_name = self.create_new_model_name(self.filename, DQN_Agent.MODEL_EXTENSION, n_episodes)
+        self.model_name = self.create_new_model_name(DQN_Agent.MODEL_EXTENSION, n_episodes)
 
         # Print only when saving non-temprary models
         if n_episodes is not None:
-            print(f"Saving DQN to: '{model_name}'..")
-        torch.save(self.policy_dqn.state_dict(), model_name)
+            print(f"Saving DQN to: '{self.model_name}'..")
+        torch.save(self.policy_dqn.state_dict(), self.model_name)
 
-    def run(self, n_episodes: int | None, is_training = True, show_plots = True, verbose = True, seed = None):
+    def run(self, n_episodes: int | None, is_training = True, show_plots = True, verbose = True, model_name = None, seed = None):
         if is_training:
             # Track number of step taken
             self.step_count = 0
@@ -769,15 +795,15 @@ class DQN_Agent(Agent):
             self.optimizer = torch.optim.Adam(self.policy_dqn.parameters(), lr=self.learning_rate)
         else:
             # Load learned policy
-            self.load_model(None)
+            self.load_model(model_name=model_name, n_episodes=None)
 
             # Switch model to evaluation mode
             self.policy_dqn.eval()
 
-        super().run(n_episodes, is_training, show_plots, verbose, seed)
+        super().run(n_episodes, is_training, show_plots, verbose, model_name, seed)
 
-    def plot_results(self, all_rewards, mean_rewards, epsilon_values, training = False, show = True, integrated = False):
+    def plot_results(self, all_rewards, mean_rewards, epsilon_values, training = False, temp = False, show = True, integrated = False):
         add_parameters = {
             "HID": self.hidden_dim
         }
-        self._internal_plot(all_rewards, mean_rewards, epsilon_values, training, show, integrated, add_parameters)
+        self._internal_plot(all_rewards, mean_rewards, epsilon_values, training, temp, show, integrated, add_parameters)

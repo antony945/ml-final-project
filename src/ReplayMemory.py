@@ -8,6 +8,7 @@ class ReplayMemory():
             capacity: int,
             use_priority: bool = False,
             alpha = 0.6,
+            beta = 0.4,
             epsilon = 0.01, # or 1e-5
             seed=None):
         
@@ -19,7 +20,8 @@ class ReplayMemory():
             self.memory = SumTree(self.capacity)
             self.epsilon = epsilon # Small constant to avoid some experiences to have zero probability of being chosen 
             self.alpha = alpha # Tradeoff between taking only exp with high priority and sampling randomly
-            # self.beta = beta_init # Importance-sampling, from initial value increasing to 1
+            self.beta = beta # Importance-sampling, from initial value increasing to 1
+            self.beta_increment_per_sampling = 1e-5
         else:
             self.memory = deque([], maxlen=self.capacity)
 
@@ -44,7 +46,7 @@ class ReplayMemory():
         else:
             self.memory.append(transition)
 
-    def sample(self, batch_size, beta=0.4):
+    def sample(self, batch_size):
         """
         Sample a batch based on priority.
         :param batch_size: Number of samples
@@ -73,12 +75,13 @@ class ReplayMemory():
             # Compute probability of being selected
             prob = priority / self.memory.total_priority
             # Importance sampling
-            weights[i] = (1.0 / (self.capacity * prob)) ** beta
+            weights[i] = (1.0 / (self.capacity * prob)) ** self.beta
             batch.append(data)
             indices.append(idx)
 
         # Normalize weights
         weights /= np.max(weights)
+        self.beta = min(self.beta+self.beta_increment_per_sampling, 1)
         return batch, weights, indices
 
     def update_priorities(self, indices, td_errors):
