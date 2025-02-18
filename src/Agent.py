@@ -65,7 +65,7 @@ class Agent:
         self.learning_rate =        self.hyperparameters.get('learning_rate', 0.001)
         self.epsilon =              self.hyperparameters.get('epsilon_init', 1)
         self.epsilon_decay =        self.hyperparameters.get('epsilon_decay', 0.99995)
-        self.final_epsilon =        self.hyperparameters.get('epsilon_min', 0.05)
+        self.final_epsilon =        self.hyperparameters.get('epsilon_final', 0.05)
         self.discount_factor =      self.hyperparameters.get('discount_factor', None)
         self.stop_on_reward =       self.hyperparameters.get('stop_on_reward', None)
         self.enable_ER =            self.hyperparameters.get('enable_ER', True)
@@ -73,7 +73,6 @@ class Agent:
         self.epsilon_PER =          self.hyperparameters.get('epsilon_PER', 0.001)
         self.alpha_PER =            self.hyperparameters.get('alpha_PER', 0.6)
         self.beta_init_PER =        self.hyperparameters.get('beta_init_PER', 0.4)
-        self.beta_end_PER =         self.hyperparameters.get('beta_end_PER', 1.0)
         self.mini_batch_size =      self.hyperparameters.get('mini_batch_size', 64)
         self.min_memory_size =      self.hyperparameters.get('min_memory_size', 1_000)
         self.max_memory_size =      self.hyperparameters.get('max_memory_size', 100_000)
@@ -171,7 +170,8 @@ class Agent:
             lines = []
 
             # Plot all individual episode rewards in light gray
-            line0, = ax1.plot(all_rewards, label="Episode Reward", color="gray", alpha=0.5)
+            line0, = ax1.plot(all_rewards, label="Episode Reward", color="b", alpha=0.2)
+            # line0, = ax1.plot(all_rewards, label="Episode Reward", color="grey", alpha=0.5)
             lines.append(line0)
 
             # Plot mean_rewards on the primary y-axis
@@ -663,12 +663,11 @@ class DQN_Agent(Agent):
         self.network_sync_rate =    self.hyperparameters.get('network_sync_rate', 10)
         self.hidden_dim =           self.hyperparameters.get('fc1_nodes', 128)
 
+        if not self.lazy_update:
+            self.network_sync_rate *= 100 # so update every 10*100=1000 steps
+
         # NN loss function, MSE = Mean Squared Error
         self.loss_fn = nn.MSELoss()
-        # NN loss function, Huber loss
-        # acts like the mean squared error when the error is small
-        # but like the mean absolute error when the error is large
-        # self.loss_fn = nn.SmoothL1Loss()
 
         # NN optimizer to initialize later
         self.optimizer = None
@@ -677,6 +676,7 @@ class DQN_Agent(Agent):
         self.state_dim = self.env.observation_space.shape[0]
         self.action_dim = self.env.action_space.n
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        # self.device = 'cpu'
         self.policy_dqn = DQN(self.state_dim, self.action_dim, self.hidden_dim).to(self.device)
         print(self.policy_dqn)
 

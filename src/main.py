@@ -99,6 +99,15 @@ def main(hyperparameter_set: str):
     # model_name = "FlappyBird_231320.pt"             # avg reward in test: 13
     # model_name = "FlappyBird_850005.pt"             # avg reward in test: 4.8
     # model_name = "FlappyBird_1036177_best_model.pt" # avg reward in test: 50
+    # model_name = "FlappyBird_temp_LR=0.0001_DF=0.95_EPS=0.01_MEM=ER, BATCH=64_LAZY.pt" # avg reward in test: 10
+    # model_name = "FlappyBird_temp_LR=0.0001_DF=0.95_EPS=0.01_MEM=ER, BATCH=32_LAZY.pt" # avg reward in test: 5
+    # model_name = "FlappyBird_temp_LR=0.0001_DF=0.95_EPS=0.01_MEM=ER, BATCH=64_.pt" # avg reward at 10k: 15, at 20k: 100
+    # model_name = "FlappyBird_temp_LR=0.0001_DF=0.95_EPS=0.01_MEM=ER, BATCH=128_.pt" # avg reward at 17.5k: 100, at 20k: 105
+    
+    # model_name = "FlappyBird_LR=0.0001_DF=0.95_EPS=0.01_MEM=ER, BATCH=128__N=27052.pt" # avg reward at 27k: 500
+    # model_name = "FlappyBird_LR=0.0001_DF=0.95_EPS=0.01_MEM=ER, BATCH=64__N=50874.pt" # avg reward at 50k: 200
+    # model_name = "FlappyBird_LR=0.0001_DF=0.95_EPS=0.01_MEM=ER, BATCH=64_tDQN_N=50000.pt" # avg reward at 50k: 250
+
     # model_name = f"models/{model_name}"
     # RUN
     run(hyperparameters, 1000, dqn=DQN, is_training=False, show_plots=True, show_render=False, verbose=False, record_video=False, model_name=model_name, seed=seed)
