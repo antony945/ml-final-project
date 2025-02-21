@@ -1,70 +1,3 @@
-cartpole:
-  env_id: CartPole-v1
-  replay_memory_size: 100_000
-  mini_batch_size: 32
-  epsilon_init: 1
-  epsilon_decay: 0.9995
-  epsilon_final: 0.05
-
-frozenlake:
-  env_args:
-    id: FrozenLake-v1
-    map_name: 8x8
-    is_slippery: True
-  replay_memory_size: 100_000
-  mini_batch_size: 32
-  epsilon_init: 1
-  epsilon_decay: 0.9995
-  epsilon_final: 0.05
-  n_episodes: 100_000
-  learning_rate: 0.001
-
-taxi:
-  env_args:
-    id: Taxi-v3
-  replay_memory_size: 100_000
-  mini_batch_size: 32
-  epsilon_init: 1
-  epsilon_decay: 0.9995
-  epsilon_final: 0.05
-  n_episodes: 100_000
-  learning_rate: 0.001
-
-lunarlander:
-  env_args:
-    id: LunarLander-v3
-    continuous: False
-  replay_memory_size: 100_000
-  mini_batch_size: 32
-  epsilon_init: 1
-  epsilon_decay: 0.9995
-  epsilon_final: 0.05
-  n_episodes: 5_000
-  learning_rate: 0.001
-
-mountaincar:
-  env_args:
-    id: MountainCar-v0
-  replay_memory_size: 100_000
-  mini_batch_size: 32
-  epsilon_init: 1
-  epsilon_decay: 0.9995
-  epsilon_final: 0.05
-  n_episodes: 5_000
-  learning_rate: 0.9
-  max_episode_steps: 1000
-
-tetris:
-  env_args:
-    id: tetris_gymnasium/Tetris
-  replay_memory_size: 100_000
-  mini_batch_size: 32
-  epsilon_init: 1
-  epsilon_decay: 0.9995
-  epsilon_final: 0.05
-  n_episodes: 100_000
-  learning_rate: 0.001
-
 # BEST PARAMETERS FOR TABULAR Q-VERSION WITHOUT MEMORY
 flappybird_q_none:
   dqn: False
@@ -75,22 +8,18 @@ flappybird_q_none:
   # seed: 32
   epsilon_init: 1
   epsilon_decay: 0.99995
-  epsilon_final: 0.01         
+  epsilon_final: 0.01
   learning_rate: 0.0001
   discount_factor: 0.95
-  n_episodes: 300_000
+  n_episodes: 400_000
   # stop_on_reward: 100
-  enable_ER: false           # enable Experience Replay (ER)
-  enable_PER: false          # enable Prioritized Experience Replay (PER) (overrides enable_ER)
-  alpha_PER: 0.6            # alpha for PER
-  beta_init_PER: 0.4        # beta init for PER
-  beta_final_PER: 1.0       # beta final for PER
-  mini_batch_size: 64       # 64 seems to perform better than 32 for DQN (but needs to try)
-  min_memory_size: 64
-  max_memory_size: 131_072  # to use power of 2, 2^17
-  lazy_update: false        # true seems to perform better than false for DQN
+  enable_ER: false # enable Experience Replay (ER)
+  mini_batch_size: 128
+  min_memory_size: 128
+  max_memory_size: 131_072 # to use power of 2, 2^17
+  lazy_update: false
   # Q-Table specific
-  divisions: 10             # something between 8 and 12, 10 perfect value, anything <=5 or >= 15 is bad
+  divisions: 10 # something between 8 and 12, 10 perfect value, anything <=5 or >= 15 is bad
 
 # BEST PARAMETERS FOR TABULAR Q-VERSION WITH MEMORY (ER)
 flappybird_q_er:
@@ -102,49 +31,21 @@ flappybird_q_er:
   # seed: 32
   epsilon_init: 1
   epsilon_decay: 0.9995
-  epsilon_final: 0.01         
+  epsilon_final: 0.01
   learning_rate: 0.0001
   discount_factor: 0.95
-  n_episodes: 100_000
+  n_episodes: 400_000
   # stop_on_reward: 100
-  enable_ER: true           # enable Experience Replay (ER)
-  enable_PER: false          # enable Prioritized Experience Replay (PER) (overrides enable_ER)
-  alpha_PER: 0.6            # alpha for PER
-  beta_init_PER: 0.4        # beta init for PER
-  mini_batch_size: 64       # 64 seems to perform better than 32 for DQN (but needs to try)
-  min_memory_size: 64
-  max_memory_size: 131_072  # to use power of 2, 2^17
-  lazy_update: false        # true seems to perform better than false for DQN
+  enable_ER: true # enable Experience Replay (ER)
+  mini_batch_size: 128
+  min_memory_size: 128
+  max_memory_size: 131_072 # to use power of 2, 2^17
+  lazy_update: false
   # Q-Table specific
-  divisions: 10             # something between 8 and 12, 10 perfect value, anything <=5 or >= 15 is bad
+  divisions: 10 # something between 8 and 12, 10 perfect value, anything <=5 or >= 15 is bad
 
-# BEST PARAMETERS FOR TABULAR Q-VERSION WITH MEMORY (PER)
-flappybird_q_per:
-  dqn: False
-  env_args:
-    id: FlappyBird-v0
-    use_lidar: False
-  # Both approaches
-  # seed: 32
-  epsilon_init: 1
-  epsilon_decay: 0.9995
-  epsilon_final: 0.01         
-  learning_rate: 0.0001
-  discount_factor: 0.95
-  n_episodes: 100_000
-  # stop_on_reward: 100
-  enable_ER: false           # enable Experience Replay (ER)
-  enable_PER: true         # enable Prioritized Experience Replay (PER) (overrides enable_ER)
-  alpha_PER: 0.6            # alpha for PER
-  beta_init_PER: 0.4        # beta init for PER
-  mini_batch_size: 64       # 64 seems to perform better than 32 for DQN (but needs to try)
-  min_memory_size: 64
-  max_memory_size: 131_072  # to use power of 2, 2^17
-  lazy_update: false        # true seems to perform better than false for DQN
-  # Q-Table specific
-  divisions: 10             # something between 8 and 12, 10 perfect value, anything <=5 or >= 15 is bad
-
-flappybird_dqn:
+# BEST PARAMETERS FOR DQN-VERSION WITH MEMORY (ER)
+flappybird_dqn_er:
   dqn: True
   env_args:
     id: FlappyBird-v0
@@ -153,22 +54,109 @@ flappybird_dqn:
   # seed: 32
   epsilon_init: 1
   epsilon_decay: 0.9995
-  epsilon_final: 0.01        # 0.01 performs way better than 0.03 and 0.05 (for Q-Table)
-  learning_rate: 10.0001      # 0.0001 with 1kk performs better than 0.001
+  epsilon_final: 0.01 # 0.01 performs way better than 0.03 and 0.05 (for Q-Table)
+  learning_rate: 0.0001 # 0.0001 with 1kk performs better than 0.001
   discount_factor: 0.95
   n_episodes: 30_000
   # stop_on_reward: 100
-  enable_ER: true           # enable Experience Replay (ER)
-  enable_PER: false         # enable Prioritized Experience Replay (PER) (overrides enable_ER)
-  alpha_PER: 0.6            # alpha for PER
-  beta_init_PER: 0.4        # beta init for PER
-  mini_batch_size: 128       # 64 seems to perform better than 32 for DQN (but needs to try)
+  enable_ER: true # enable Experience Replay (ER)
+  enable_PER: false # enable Prioritized Experience Replay (PER) (overrides enable_ER)
+  alpha_PER: 0.6 # alpha for PER
+  beta_init_PER: 0.4 # beta init for PER
+  mini_batch_size: 128 # 64 seems to perform better than 32 for DQN (but needs to try)
   min_memory_size: 128
-  max_memory_size: 131_072  # to use power of 2, 2^17, for SumTree
-  lazy_update: false         # true seems to perform better than false for DQN
+  max_memory_size: 131_072 # to use power of 2, 2^17, for SumTree
+  lazy_update: false
   # DQN specific
-  use_target_dqn: true
-  network_sync_rate: 10
+  double_dqn: false
+  dueling_dqn: false
+  network_sync_rate: 100
   fc1_nodes: 128
-  # Q-Table specific
-  divisions: 10
+  device: "cuda" # "cpu" or "cuda", on my end cpu seems faster
+
+# BEST PARAMETERS FOR DOUBLE DQN-VERSION WITH MEMORY (ER)
+flappybird_dqn_double_er:
+  dqn: True
+  env_args:
+    id: FlappyBird-v0
+    use_lidar: False
+  # Both approaches
+  # seed: 32
+  epsilon_init: 1
+  epsilon_decay: 0.9995
+  epsilon_final: 0.01 # 0.01 performs way better than 0.03 and 0.05 (for Q-Table)
+  learning_rate: 0.0001 # 0.0001 with 1kk performs better than 0.001
+  discount_factor: 0.95
+  n_episodes: 30_000
+  # stop_on_reward: 100
+  enable_ER: true # enable Experience Replay (ER)
+  enable_PER: false # enable Prioritized Experience Replay (PER) (overrides enable_ER)
+  alpha_PER: 0.6 # alpha for PER
+  beta_init_PER: 0.4 # beta init for PER
+  mini_batch_size: 128 # 64 seems to perform better than 32 for DQN (but needs to try)
+  min_memory_size: 128
+  max_memory_size: 131_072 # to use power of 2, 2^17, for SumTree
+  lazy_update: false
+  # DQN specific
+  double_dqn: true
+  dueling_dqn: false
+  network_sync_rate: 100
+  fc1_nodes: 128
+  device: "cuda" # "cpu" or "cuda", on my end cpu seems faster
+
+# BEST PARAMETERS FOR DUELING DQN-VERSION WITH MEMORY (ER)
+flappybird_dqn_dueling_er:
+  dqn: True
+  env_args:
+    id: FlappyBird-v0
+    use_lidar: False
+  # Both approaches
+  # seed: 32
+  epsilon_init: 1
+  epsilon_decay: 0.9995
+  epsilon_final: 0.01 # 0.01 performs way better than 0.03 and 0.05
+  learning_rate: 0.0001 # 0.0001 performs better than 0.001
+  discount_factor: 0.95
+  n_episodes: 30_000
+  # stop_on_reward: 100
+  enable_ER: true # enable Experience Replay (ER)
+  mini_batch_size: 128 # 64 seems to perform better than 32 for DQN (but needs to try)
+  min_memory_size: 128
+  max_memory_size: 131_072 # to use power of 2, 2^17, for SumTree
+  lazy_update: false
+  # DQN specific
+  double_dqn: false
+  dueling_dqn: true
+  network_sync_rate: 100
+  fc1_nodes: 128
+  device: "cuda" # "cpu" or "cuda", on my end cpu seems faster
+
+# BEST PARAMETERS FOR DOUBLE DUELING DQN-VERSION WITH MEMORY (ER)
+flappybird_dqn_double_dueling_er:
+  dqn: True
+  env_args:
+    id: FlappyBird-v0
+    use_lidar: False
+  # Both approaches
+  # seed: 32
+  epsilon_init: 1
+  epsilon_decay: 0.9995
+  epsilon_final: 0.01 # 0.01 performs way better than 0.03 and 0.05 (for Q-Table)
+  learning_rate: 0.0001 # 0.0001 with 1kk performs better than 0.001
+  discount_factor: 0.95
+  n_episodes: 30_000
+  # stop_on_reward: 100
+  enable_ER: true # enable Experience Replay (ER)
+  enable_PER: false # enable Prioritized Experience Replay (PER) (overrides enable_ER)
+  alpha_PER: 0.6 # alpha for PER
+  beta_init_PER: 0.4 # beta init for PER
+  mini_batch_size: 128 # 64 seems to perform better than 32 for DQN (but needs to try)
+  min_memory_size: 128
+  max_memory_size: 131_072 # to use power of 2, 2^17, for SumTree
+  lazy_update: false
+  # DQN specific
+  double_dqn: true
+  dueling_dqn: true
+  network_sync_rate: 100
+  fc1_nodes: 128
+  device: "cuda" # "cpu" or "cuda", on my end cpu seems faster

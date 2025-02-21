@@ -9,7 +9,7 @@ class ReplayMemory():
             use_priority: bool = False,
             alpha = 0.6,
             beta = 0.4,
-            epsilon = 0.01, # or 1e-5
+            epsilon = 1e-5, # or 1e-5
             seed=None):
         
         self.capacity = capacity
@@ -21,7 +21,7 @@ class ReplayMemory():
             self.epsilon = epsilon # Small constant to avoid some experiences to have zero probability of being chosen 
             self.alpha = alpha # Tradeoff between taking only exp with high priority and sampling randomly
             self.beta = beta # Importance-sampling, from initial value increasing to 1
-            self.beta_increment_per_sampling = 1e-5
+            self.beta_increment_per_sampling = 1e-4
         else:
             self.memory = deque([], maxlen=self.capacity)
 
