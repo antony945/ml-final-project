@@ -14,7 +14,7 @@ def plot_avg_reward_from_csvs(filenames: dict, output_file: str = None):
     # Use a Seaborn color palette (e.g., 'deep')
     color_palette = sns.color_palette('deep')
     # color_palette = plt.rcParams['axes.prop_cycle'].by_key()['color']
-    # color_palette = plt.cm.Set1.colors
+    # color_palette = plt.cm.Set2.colors
 
     color_cycle = itertools.cycle(color_palette)
     used_colors = []
@@ -36,16 +36,20 @@ def plot_avg_reward_from_csvs(filenames: dict, output_file: str = None):
         alternative_values = best_reward_per_episode
 
         # Plot alternative values with lighter transparency
-        plt.plot(alternative_values.index, alternative_values.values, color=color, alpha=0.4)
+        plt.plot(alternative_values.index, alternative_values.values, color=color, alpha=1.0, linestyle=':')
         # Plot avg_reward with normal color
-        plt.plot(avg_reward_per_episode.index, avg_reward_per_episode.values, color=color, label=f'{label}')
+        plt.plot(avg_reward_per_episode.index, avg_reward_per_episode.values, color=color, label=f'{label}', linewidth=1.75)
 
     # Add labels and title
     plt.xlabel('Episode')
     plt.ylabel('Average Reward')
     # plt.title('Average Reward per Episode During TEST')
-    plt.legend()
-    plt.grid(True)
+    # Put legend outside of the graph
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.10), ncol=6)
+    # plt.legend(loc='best', framealpha=0.5)  # Semi-transparent background
+    # plt.legend()
+    # plt.grid(True)
+    plt.grid(linestyle='--', alpha=0.7)
 
     # Use a logarithmic scale on the y-axis
     plt.yscale('log')
@@ -125,7 +129,7 @@ def plot_max_best_reward_bar(filenames: dict, colors: list, output_file: str = N
     plt.yscale('log')
 
     # Adjust y-axis limits to provide more space at the top
-    plt.ylim(bottom=plt.ylim()[0], top=max(max_rewards.values()) * 1.40)  # Increase upper limit by 40%
+    plt.ylim(bottom=plt.ylim()[0], top=max(max_rewards.values()) * 1.50)  # Increase upper limit by 40%
 
     # Show value on top of each bar
     for i, (label, value) in enumerate(max_rewards.items()):
@@ -142,8 +146,8 @@ filenames = {
     'Q-ER': 'runs/FlappyBird_test_Q_LR=0.0001_DF=0.95_eDECAY=0.9995_eFIN=0.01_MEM=ER_BATCH=128_DIV=10_N=-1.csv',
     'DQN-Basic': 'runs/FlappyBird_test_DQN_LR=0.0001_DF=0.95_eDECAY=0.9995_eFIN=0.01_MEM=ER_BATCH=128_dDQN=False_duelDQN=False_HID=128_DEV=cuda_N=-1.csv',
     'DQN-Double': 'runs/FlappyBird_test_DQN_LR=0.0001_DF=0.95_eDECAY=0.9995_eFIN=0.01_MEM=ER_BATCH=128_dDQN=True_duelDQN=False_HID=128_DEV=cuda_N=-1.csv',
-    # 'DQN-Dueling': 'runs/FlappyBird_test_DQN_LR=0.0001_DF=0.95_eDECAY=0.9995_eFIN=0.01_MEM=ER_BATCH=128_dDQN=False_duelDQN=True_HID=128_DEV=cuda_N=-1.csv',
-    # 'DQN-DoubleDueling': 'runs/FlappyBird_test_DQN_LR=0.0001_DF=0.95_eDECAY=0.9995_eFIN=0.01_MEM=ER_BATCH=128_dDQN=True_duelDQN=True_HID=128_DEV=cuda_N=-1.csv',
+    'DQN-Dueling': 'runs/FlappyBird_test_DQN_LR=0.0001_DF=0.95_eDECAY=0.9995_eFIN=0.01_MEM=ER_BATCH=128_dDQN=False_duelDQN=True_HID=128_DEV=cuda_N=-1.csv',
+    'DQN-DoubleDueling': 'runs/FlappyBird_test_DQN_LR=0.0001_DF=0.95_eDECAY=0.9995_eFIN=0.01_MEM=ER_BATCH=128_dDQN=True_duelDQN=True_HID=128_DEV=cuda_N=-1.csv',
 }
 
 colors = plot_avg_reward_from_csvs(filenames, "results/avg_reward_plot.png")
