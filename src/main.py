@@ -1,7 +1,5 @@
 import gymnasium as gym
-from Agent import Agent, Q_Agent, DQN_Agent
-from tqdm import tqdm
-import numpy as np
+from Agent import Q_Agent, DQN_Agent
 import yaml
 import flappy_bird_gymnasium
 import argparse
@@ -82,34 +80,22 @@ def main(hyperparameter_set: str):
     # TRAINING
     model_name = run(hyperparameters, hyperparameters.get('n_episodes', None), dqn=DQN, is_training=True, show_plots=True, show_render=False, verbose=True, record_video=False, model_name=None, seed=seed)
 
-    # model_name = "models/FlappyBird_LR=0.001_DF=0.95_EPS=0.03_MEM=None__N=200000.pk1"
-    # model_name = "FlappyBird_LR=0.001_DF=0.95_EPS=0.03_MEM=PER, BATCH=64, ALPHA=0.6, FIXEDBETA=0.4, EPS=0.001_LAZY_N=200000.pk1"
-    # model_name = "FlappyBird_temp_LR=0.001_DF=0.95_EPS=0.03_MEM=PER, BATCH=64, ALPHA=0.6, BETA=0.4, EPS=0.001_.pk1"
-    # model_name = "FlappyBird_temp_LR=0.001_DF=0.95_EPS=0.03_MEM=ER, BATCH=64_LAZY.pk1"
-    
-    # model_name = "FlappyBird_LR=0.001_DF=0.95_EPS=0.03_MEM=ER, BATCH=64_LAZY_N=185021.pk1"
-    # model_name = "FlappyBird_temp_LR=0.001_DF=0.95_EPS=0.03_MEM=ER, BATCH=64_LAZY.pk1"
-    # model_name = "FlappyBird_temp_LR=0.001_DF=0.95_EPS=0.01_MEM=None_.pk1"
-    # model_name = "FlappyBird_temp_LR=0.0001_DF=0.95_EPS=0.01_MEM=None_.pk1"
-    # model_name = "FlappyBird_LR=0.0001_DF=0.95_EPS=0.01_MEM=None__N=1000000.pk1" # avg reward in test: 7
-    # model_name = "FlappyBird_LR=0.001_DF=0.95_EPS=0.01_MEM=None__N=1000000.pk1" # avg reward in test: 5
+    # DQN FALSE FALSE
+    # model_name = "FlappyBird_training_DQN_LR=0.0001_DF=0.95_eDECAY=0.9995_eFIN=0.01_MEM=ER_BATCH=128_dDQN=False_duelDQN=False_HID=128_DEV=cuda_N=30000.pt"
+    # DQN TRUE FALSE
+    # model_name = "FlappyBird_training_DQN_LR=0.0001_DF=0.95_eDECAY=0.9995_eFIN=0.01_MEM=ER_BATCH=128_dDQN=True_duelDQN=False_HID=128_DEV=cuda_N=30000.pt"
+    # DQN FALSE TRUE
+    # model_name = "FlappyBird_training_DQN_LR=0.0001_DF=0.95_eDECAY=0.9995_eFIN=0.01_MEM=ER_BATCH=128_dDQN=False_duelDQN=True_HID=128_DEV=cuda_N=30000.pt"
+    # DQN TRUE TRUE
+    # model_name = "FlappyBird_training_DQN_LR=0.0001_DF=0.95_eDECAY=0.9995_eFIN=0.01_MEM=ER_BATCH=128_dDQN=True_duelDQN=True_HID=128_DEV=cuda_N=30000.pt"
 
-    # model_name = "FlappyBird_False_temp.pt"         # avg reward in test: 20
-    # model_name = "FlappyBird_173742.pt"             # avg reward in test: 3.90
-    # model_name = "FlappyBird_195776.pt"             # avg reward in test: 20
-    # model_name = "FlappyBird_231320.pt"             # avg reward in test: 13
-    # model_name = "FlappyBird_850005.pt"             # avg reward in test: 4.8
-    # model_name = "FlappyBird_1036177_best_model.pt" # avg reward in test: 50
-    # model_name = "FlappyBird_temp_LR=0.0001_DF=0.95_EPS=0.01_MEM=ER, BATCH=64_LAZY.pt" # avg reward in test: 10
-    # model_name = "FlappyBird_temp_LR=0.0001_DF=0.95_EPS=0.01_MEM=ER, BATCH=32_LAZY.pt" # avg reward in test: 5
-    # model_name = "FlappyBird_temp_LR=0.0001_DF=0.95_EPS=0.01_MEM=ER, BATCH=64_.pt" # avg reward at 10k: 15, at 20k: 100
-    # model_name = "FlappyBird_temp_LR=0.0001_DF=0.95_EPS=0.01_MEM=ER, BATCH=128_.pt" # avg reward at 17.5k: 100, at 20k: 105
-    # model_name = "FlappyBird_LR=0.0001_DF=0.95_EPS=0.01_MEM=ER, BATCH=128__N=27052.pt" # avg reward at 27k: 500
-    # model_name = "FlappyBird_LR=0.0001_DF=0.95_EPS=0.01_MEM=ER, BATCH=64__N=50874.pt" # avg reward at 50k: 200
-    # model_name = "FlappyBird_LR=0.0001_DF=0.95_EPS=0.01_MEM=ER, BATCH=64_tDQN_N=50000.pt" # avg reward at 50k: 250
-    # model_name = "models/FlappyBird_training_temp_DQN_LR=0.0001_DF=0.95_eDECAY=0.9995_eFIN=0.01_MEM=ER_BATCH=128_N=-1.pt"
+    # Q NONE
+    # model_name = "FlappyBird_training_Q_LR=0.0001_DF=0.95_eDECAY=0.99995_eFIN=0.01_MEM=None_DIV=10_N=1000000.pk1"
 
-    # model_name = f"oldmodels/{model_name}"
+    # Q ER
+    # model_name = "FlappyBird_training_Q_LR=0.0001_DF=0.95_eDECAY=0.9995_eFIN=0.01_MEM=ER_BATCH=128_DIV=10_N=300000.pk1"
+
+    # model_name = f"models/{model_name}"
     # RUN
     run(hyperparameters, 1000, dqn=DQN, is_training=False, show_plots=True, show_render=False, verbose=False, record_video=False, model_name=model_name, seed=seed)
 
@@ -124,6 +110,7 @@ if __name__ == '__main__':
     parser.add_argument('--per', action='store_true', help='Use Prioritized Experience Replay')
     parser.add_argument('--double', action='store_true', help='Use DoubleDQN')
     parser.add_argument('--dueling', action='store_true', help='Use DuelingDQN')
+
     args = parser.parse_args()
 
     if args.q:

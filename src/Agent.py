@@ -83,6 +83,7 @@ class Agent:
         self.loss_per_episode = []
         # Useful for DQN_Agent
         self.synced = False
+        self.add_parameters = {}
 
     def decay_epsilon(self, is_training):
         if is_training:
@@ -164,13 +165,13 @@ class Agent:
             log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: {k} = {v}"
             print(log_msg)
 
-    def create_new_runfile_name(self) -> str:
-        name = f"{datetime.now().strftime("%Y-%m-%d_%Hh%Mm%Ss")}_{self.create_new_name(training=True, n_episodes=-1, additional_parameters=None)}"
+    def create_new_runfile_name(self, training: bool, additional_parameters: dict | None = None) -> str:
+        name = f"{datetime.now().strftime("%Y-%m-%d_%Hh%Mm%Ss")}_{self.create_new_name(training=training, n_episodes=-1, additional_parameters=additional_parameters)}"
         return os.path.join(Agent.RUNS_DIRECTORY, f"{name}.csv")
 
-    def initialize_runfile(self):
+    def initialize_runfile(self, training: bool):
         # Create runfile
-        self.runfile = self.create_new_runfile_name()
+        self.runfile = self.create_new_runfile_name(training=training, additional_parameters=self.add_parameters)
         with open(self.runfile, mode="w", newline="") as file:
             writer = csv.writer(file)            
             writer.writerow(["timestamp", "episode", "epsilon", "frames", "avg_frames", "reward", "avg_reward", "best_reward"])
@@ -379,14 +380,15 @@ class Agent:
                     epsilon=self.epsilon_PER,
                     seed=seed)
             
-            # Initialize log file
-            self.initialize_runfile()
             start_time = datetime.now()
 
             # Debug
             self.log_hyperparameters(self.hyperparameters)
             log_msg = f"{start_time.strftime(Agent.TIME_FORMAT)}: STARTED TRAINING"
             print(log_msg)
+
+        # Initialize run file
+        self.initialize_runfile(training=is_training)
 
         # Reset environment
         _, self.info = self.env.reset(seed=seed)
@@ -447,27 +449,30 @@ class Agent:
                 avg_frames = np.mean(frames_per_episode[len(frames_per_episode)-100:])
                 avg_frames_per_episode.append(avg_frames)
 
-                # If is not training continue to next episode
-                if not is_training:
-                    continue
-
                 # ONLY IN TRAINING
                 # At the end of episode handle rewards
                 if rewards > best_reward:
                     log_msg = f"{datetime.now().strftime(Agent.TIME_FORMAT)}: Episode {self.episode}) Steps: {frames}, New Best Reward {rewards:.2f} ({((rewards-best_reward)/abs(best_reward)*100):+.1f}%)"
+
                     if verbose:
                         print(log_msg)
-                    
-                    # Save also model but without specifying n_episodes (so it will override everytime)
-                    self.save_model(n_episodes = None)
-                    best_reward = rewards
 
-                    # Exit loop on a particular reward
-                    if self.stop_on_reward is not None and best_reward >= self.stop_on_reward: 
-                        break
+                    best_reward = rewards
+                                       
+                    if is_training:
+                        # Save also model but without specifying n_episodes (so it will override everytime)
+                        self.save_model(n_episodes = None)
+
+                        # Exit loop on a particular reward
+                        if self.stop_on_reward is not None and best_reward >= self.stop_on_reward: 
+                            break
 
                 # Append episode row to log
-                self.log_episode_to_csv(self.episode, self.epsilon, frames, avg_frames, reward, avg_reward, best_reward)
+                self.log_episode_to_csv(self.episode, self.epsilon, frames, avg_frames, rewards, avg_reward, best_reward)
+
+                # If is not training continue to next episode
+                if not is_training:
+                    continue
 
                 # Debug every 100 episodes
                 if self.episode%100==0:
