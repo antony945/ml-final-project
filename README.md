@@ -24,8 +24,6 @@ Optionally, to facilitate the presentation, a Colab notebook can be linked. The 
 
 Discussions will take place as per the calendar below. Every project will be discussed separately with all team members. Every member is required to have full kowledge and understanding of every aspect of the project.
 
-https://www.youtube.com/watch?v=ZhoIgo3qqLU&list=PL58zEckBH8fCt_lYkmayZoR9XfDCW9hte
-
 https://farama.org/Gymnasium-Terminated-Truncated-Step-API
 
 https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/

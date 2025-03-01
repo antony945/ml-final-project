@@ -1,9 +1,5 @@
-*.pk1
 videos/
 results/
-oldresults/
-logs/
 models/
-oldmodels/
 runs/
 .vscode/*
