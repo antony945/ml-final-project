@@ -499,7 +499,7 @@ class Agent:
 
         except KeyboardInterrupt:
             print("\nCTRL+C pressed.\n")
-        finally:
+        finally:            
             # Close the env
             self.env.close()
 
@@ -650,7 +650,7 @@ class Q_Agent(Agent):
         return td_errors, total_loss
 
     def load_model(self, model_name: str):
-        self.model_name = model_name
+        self.model_name = os.path.join(Agent.MODELS_DIRECTORY, model_name)
         print(f"Loading Q-Table from: '{self.model_name}'..")
 
         with open(self.model_name, "rb") as f:
@@ -885,7 +885,7 @@ class DQN_Agent(Agent):
         return td_errors, loss.item()
     
     def load_model(self, model_name: str):
-        self.model_name = model_name
+        self.model_name = os.path.join(Agent.MODELS_DIRECTORY, model_name)
         print(f"Loading DQN from: '{self.model_name}'..")
 
         # Load policy from file
