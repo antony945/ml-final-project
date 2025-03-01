@@ -565,21 +565,15 @@ class Q_Agent(Agent):
         # Flatten the box
         original_obs_space = gym.spaces.flatten_space(obs_space)
 
-        # print(self.env.observation_space.shape)
         for i in range(0, original_obs_space.shape[0]):
             # When an obs will be discretized it could have values between 0 and divisions included (divisions+1 total values)
             space = np.linspace(original_obs_space.low[i], original_obs_space.high[i], divisions)
             obs_spaces.append(space)
 
-        # self.divisions+1 * obs_space.shape spaces
-        # q_table will have obs_spaces_size x action_spaces
-        # print(f"How many obs spaces: {len(self.obs_spaces)}")
+        # Q_table will have obs_spaces_size x action_spaces
         self.obs_spaces_size = 1
         for i, s in enumerate(self.obs_spaces):
-            # print(f"{i}) length: {len(s)}")
-            # print(f"{i}) s: {s}")
             self.obs_spaces_size *= (len(s)+1)
-            # print(f"size = {self.obs_spaces_size}")
 
     def _create_numpy_entry(self):
             return np.zeros(self.env.action_space.n)
@@ -589,6 +583,8 @@ class Q_Agent(Agent):
         if (isinstance(obs, int)):
             return obs
         # Index where to insert obs
+        # Finds where the observation obs[i] falls among predefined bins
+        # Sum all the indexes to get a unique index for the whole observation
         obs_idx = sum([np.digitize(obs[i], self.obs_spaces[i]) * (len(self.obs_spaces[i]) ** i) for i in range(len(obs))])
         return obs_idx
 
@@ -610,7 +606,7 @@ class Q_Agent(Agent):
         terminated: bool,
         next_obs: tuple,
         is_training=True
-    ):      
+    ):
         if not is_training: return
 
         obs = self._discretize_obs(obs)
@@ -711,7 +707,7 @@ class DQN_Agent(Agent):
         def __init__(self,
             state_dim,
             action_dim,
-            hidden_dim = 256,
+            hidden_dim = 128,
             dueling_dqn = False
         ):
             # nn.Module init method
@@ -755,7 +751,7 @@ class DQN_Agent(Agent):
 
         self.double_dqn =           self.hyperparameters.get('double_dqn', False)
         self.dueling_dqn =          self.hyperparameters.get('dueling_dqn', False)
-        self.network_sync_rate =    self.hyperparameters.get('network_sync_rate', 1000)
+        self.network_sync_rate =    self.hyperparameters.get('network_sync_rate', 100)
         self.hidden_dim =           self.hyperparameters.get('fc1_nodes', 128)
         self.device =               self.hyperparameters.get('device', "cpu")
 
@@ -770,17 +766,25 @@ class DQN_Agent(Agent):
         if not torch.cuda.is_available():
             self.device = 'cpu'
 
-        # NN loss function, MSE = Mean Squared Error
-        self.loss_fn = nn.MSELoss()
-
-        # NN optimizer to initialize later
-        self.optimizer = None
-
         # Create DQN
         self.state_dim = self.env.observation_space.shape[0]
         self.action_dim = self.env.action_space.n
+        self.policy_dqn = self.DQN(
+            self.state_dim,
+            self.action_dim,
+            self.hidden_dim,
+            self.dueling_dqn
+        ).to(self.device)
 
-        self.policy_dqn = self.DQN(self.state_dim, self.action_dim, self.hidden_dim, self.dueling_dqn).to(self.device)
+        # NN loss function, MSE = Mean Squared Error
+        self.loss_fn = nn.MSELoss()
+
+        # Policy network optimizer
+        self.optimizer = torch.optim.Adam(
+            self.policy_dqn.parameters(),
+            lr=self.learning_rate
+        )
+
         print(self.policy_dqn)
 
     # ==================================== Superclass methods
@@ -878,7 +882,6 @@ class DQN_Agent(Agent):
 
         # Compute TD errors and convert to NumPy array
         td_errors = (target_q - current_q).detach().cpu().numpy()
-
         return td_errors, loss.item()
     
     def load_model(self, model_name: str):
@@ -904,9 +907,6 @@ class DQN_Agent(Agent):
             if self.double_dqn:
                 self.target_dqn = self.DQN(self.state_dim, self.action_dim, self.hidden_dim, self.dueling_dqn).to(self.device)
                 self.target_dqn.load_state_dict(self.policy_dqn.state_dict())
-
-            # Policy network optimizer
-            self.optimizer = torch.optim.Adam(self.policy_dqn.parameters(), lr=self.learning_rate)
         else:
             # Load learned policy
             self.load_model(model_name=model_name)

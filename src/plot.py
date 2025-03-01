@@ -117,6 +117,11 @@ def plot_reward_bars(filenames: dict, colors: list, output_file: str = None):
             max_rewards[label] = None
             avg_rewards[label] = None
 
+        print(f"{label}:")
+        print("MaxReward: ", max_rewards[label])
+        print("AvgReward: ", avg_rewards[label])
+        print("MinReward: ", min_rewards[label])
+        
     # Filter out None values (in case some files were missing the 'reward' column)
     min_rewards = {k: v for k, v in min_rewards.items() if v is not None}
     max_rewards = {k: v for k, v in max_rewards.items() if v is not None}

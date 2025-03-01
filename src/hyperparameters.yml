@@ -13,13 +13,13 @@ flappybird_q_none:
   discount_factor: 0.95
   n_episodes: 1_000_000
   # stop_on_reward: 100
-  enable_ER: false # enable Experience Replay (ER)
+  enable_ER: false # Enable Experience Replay (ER)
   mini_batch_size: 128
   min_memory_size: 128
-  max_memory_size: 131_072 # to use power of 2, 2^17
-  lazy_update: false
+  max_memory_size: 131_072 # To use power of 2, 2^17
+  lazy_update: false # Perform model update at every episode instead of every step (not used in the final report)
   # Q-Table specific
-  divisions: 10 # something between 8 and 12, 10 perfect value, anything <=5 or >= 15 is bad
+  divisions: 10 # Something between 8 and 12, 10 perfect value, anything <=5 or >= 15 is bad
 
 # BEST PARAMETERS FOR TABULAR Q-VERSION WITH MEMORY (ER)
 flappybird_q_er:
@@ -36,13 +36,13 @@ flappybird_q_er:
   discount_factor: 0.95
   n_episodes: 300_000
   # stop_on_reward: 100
-  enable_ER: true # enable Experience Replay (ER)
+  enable_ER: true # Enable Experience Replay (ER)
   mini_batch_size: 128
   min_memory_size: 128
-  max_memory_size: 131_072 # to use power of 2, 2^17
-  lazy_update: false
+  max_memory_size: 131_072 # To use power of 2, 2^17
+  lazy_update: false # Perform model update at every episode instead of every step (not used in the final report)
   # Q-Table specific
-  divisions: 10 # something between 8 and 12, 10 perfect value, anything <=5 or >= 15 is bad
+  divisions: 10 # Something between 8 and 12, 10 perfect value, anything <=5 or >= 15 is bad
 
 # BEST PARAMETERS FOR DQN-VERSION WITH MEMORY (ER)
 flappybird_dqn_er:
@@ -54,25 +54,22 @@ flappybird_dqn_er:
   # seed: 32
   epsilon_init: 1
   epsilon_decay: 0.9995
-  epsilon_final: 0.01 # 0.01 performs way better than 0.03 and 0.05 (for Q-Table)
+  epsilon_final: 0.01 # 0.01 performs way better than 0.03 and 0.05
   learning_rate: 0.0001 # 0.0001 with 1kk performs better than 0.001
   discount_factor: 0.95
   n_episodes: 30_000
   # stop_on_reward: 100
-  enable_ER: true # enable Experience Replay (ER)
-  enable_PER: false # enable Prioritized Experience Replay (PER) (overrides enable_ER)
-  alpha_PER: 0.6 # alpha for PER
-  beta_init_PER: 0.4 # beta init for PER
-  mini_batch_size: 128 # 64 seems to perform better than 32 for DQN (but needs to try)
+  enable_ER: true # Enable Experience Replay (ER)
+  mini_batch_size: 128
   min_memory_size: 128
-  max_memory_size: 131_072 # to use power of 2, 2^17, for SumTree
-  lazy_update: false
+  max_memory_size: 131_072 # To use power of 2, 2^17, for SumTree
+  lazy_update: false # Perform model update at every episode instead of every step (not used in the final report)
   # DQN specific
   double_dqn: false
   dueling_dqn: false
   network_sync_rate: 100
   fc1_nodes: 128
-  device: "cuda" # "cpu" or "cuda", on my end cpu seems faster
+  device: "cuda" # "cpu" or "cuda"
 
 # BEST PARAMETERS FOR DOUBLE DQN-VERSION WITH MEMORY (ER)
 flappybird_dqn_double_er:
@@ -84,19 +81,16 @@ flappybird_dqn_double_er:
   # seed: 32
   epsilon_init: 1
   epsilon_decay: 0.9995
-  epsilon_final: 0.01 # 0.01 performs way better than 0.03 and 0.05 (for Q-Table)
+  epsilon_final: 0.01 # 0.01 performs way better than 0.03 and 0.05
   learning_rate: 0.0001 # 0.0001 with 1kk performs better than 0.001
   discount_factor: 0.95
   n_episodes: 30_000
   # stop_on_reward: 100
-  enable_ER: true # enable Experience Replay (ER)
-  enable_PER: false # enable Prioritized Experience Replay (PER) (overrides enable_ER)
-  alpha_PER: 0.6 # alpha for PER
-  beta_init_PER: 0.4 # beta init for PER
-  mini_batch_size: 128 # 64 seems to perform better than 32 for DQN (but needs to try)
+  enable_ER: true # Enable Experience Replay (ER)
+  mini_batch_size: 128
   min_memory_size: 128
-  max_memory_size: 131_072 # to use power of 2, 2^17, for SumTree
-  lazy_update: false
+  max_memory_size: 131_072 # To use power of 2, 2^17, for SumTree
+  lazy_update: false # Perform model update at every episode instead of every step (not used in the final report)
   # DQN specific
   double_dqn: true
   dueling_dqn: false
@@ -119,17 +113,17 @@ flappybird_dqn_dueling_er:
   discount_factor: 0.95
   n_episodes: 30_000
   # stop_on_reward: 100
-  enable_ER: true # enable Experience Replay (ER)
-  mini_batch_size: 128 # 64 seems to perform better than 32 for DQN (but needs to try)
+  enable_ER: true # Enable Experience Replay (ER)
+  mini_batch_size: 128
   min_memory_size: 128
-  max_memory_size: 131_072 # to use power of 2, 2^17, for SumTree
-  lazy_update: false
+  max_memory_size: 131_072 # To use power of 2, 2^17, for SumTree
+  lazy_update: false # Perform model update at every episode instead of every step (not used in the final report)
   # DQN specific
   double_dqn: false
   dueling_dqn: true
   network_sync_rate: 100
   fc1_nodes: 128
-  device: "cuda" # "cpu" or "cuda", on my end cpu seems faster
+  device: "cuda" # "cpu" or "cuda"
 
 # BEST PARAMETERS FOR DOUBLE DUELING DQN-VERSION WITH MEMORY (ER)
 flappybird_dqn_double_dueling_er:
@@ -141,22 +135,20 @@ flappybird_dqn_double_dueling_er:
   # seed: 32
   epsilon_init: 1
   epsilon_decay: 0.9995
-  epsilon_final: 0.01 # 0.01 performs way better than 0.03 and 0.05 (for Q-Table)
+  epsilon_final: 0.01 # 0.01 performs way better than 0.03 and 0.05
   learning_rate: 0.0001 # 0.0001 with 1kk performs better than 0.001
   discount_factor: 0.95
   n_episodes: 30_000
   # stop_on_reward: 100
-  enable_ER: true # enable Experience Replay (ER)
-  enable_PER: false # enable Prioritized Experience Replay (PER) (overrides enable_ER)
-  alpha_PER: 0.6 # alpha for PER
-  beta_init_PER: 0.4 # beta init for PER
-  mini_batch_size: 128 # 64 seems to perform better than 32 for DQN (but needs to try)
+  enable_ER: true # Enable Experience Replay (ER)
+  enable_PER: false # Enable Prioritized Experience Replay (PER) (not used in the final report)
+  mini_batch_size: 128
   min_memory_size: 128
-  max_memory_size: 131_072 # to use power of 2, 2^17, for SumTree
-  lazy_update: false
+  max_memory_size: 131_072 # To use power of 2, 2^17, for SumTree
+  lazy_update: false # Perform model update at every episode instead of every step (not used in the final report)
   # DQN specific
   double_dqn: true
   dueling_dqn: true
   network_sync_rate: 100
   fc1_nodes: 128
-  device: "cuda" # "cpu" or "cuda", on my end cpu seems faster
+  device: "cuda" # "cpu" or "cuda"
